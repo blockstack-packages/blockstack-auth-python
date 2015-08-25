@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
     Classes of exceptions/errors taken from José Padilla's PyJWT
     ~~~~~

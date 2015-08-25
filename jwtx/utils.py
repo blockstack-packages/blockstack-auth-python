@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
     Various utils taken from José Padilla's PyJWT
     ~~~~~

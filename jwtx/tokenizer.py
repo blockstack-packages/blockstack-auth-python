@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
     An interface for encoding and decoding JSON Web Tokens (JWTs)
     ~~~~~
@@ -7,11 +9,15 @@
 
 import json
 import binascii
+import traceback
 from collections import Mapping
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_der_private_key
+from cryptography.hazmat.primitives.serialization import (
+    load_der_private_key, load_pem_private_key, load_der_public_key,
+    load_pem_public_key
+)
 from cryptography.hazmat.primitives.asymmetric import ec, padding
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ec import (
@@ -36,10 +42,21 @@ class Tokenizer():
         if isinstance(signing_key, EllipticCurvePrivateKey):
             return signing_key
         elif isinstance(signing_key, (str, unicode)):
-            return load_der_private_key(
-                signing_key, password=None, backend=default_backend())
+            invalid_strings = [b'-----BEGIN PUBLIC KEY-----']
+            if any([string_value in signing_key for string_value in invalid_strings]):
+                raise ValueError('Signing key must be a valid private key, not a public key.')
+
+            try:
+                return load_der_private_key(
+                    signing_key, password=None, backend=default_backend())
+            except:
+                try:
+                    return load_pem_private_key(
+                        signing_key, password=None, backend=default_backend())
+                except Exception as e:
+                    raise ValueError('Signing key must be a valid private key PEM or DER.')
         else:
-            raise ValueError('Invalid signing key type')
+            raise ValueError('Signing key must be in string or unicode format.')
 
     def encode(self, payload, signing_key):
         if not isinstance(payload, Mapping):
@@ -69,15 +86,23 @@ class Tokenizer():
         token = b'.'.join(token_segments)
         return token
 
-    def _get_verifier(self, verification_key, signature):
-        return verification_key.verifier(signature, ec.ECDSA(hashes.SHA256()))
+    def _get_verifier(self, verifying_key, signature):
+        return verifying_key.verifier(signature, ec.ECDSA(hashes.SHA256()))
 
-    def _load_verifying_key(self, verification_key):
-        if isinstance(verification_key, EllipticCurvePublicKey):
-            return verification_key
-        elif isinstance(verification_key, (str, unicode)):
-            return load_der_public_key(
-                verification_key, backend=default_backend())
+    def _load_verifying_key(self, verifying_key):
+        if isinstance(verifying_key, EllipticCurvePublicKey):
+            return verifying_key
+        elif isinstance(verifying_key, (str, unicode)):
+            try:
+                return load_der_public_key(
+                    verifying_key, backend=default_backend())
+            except:
+                try:
+                    return load_pem_public_key(
+                        verifying_key, backend=default_backend())
+                except Exception as e:
+                    traceback.print_exc()
+                    raise ValueError('Invalid verifying key format')
         else:
             raise ValueError('Invalid verification key type')
 

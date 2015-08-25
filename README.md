@@ -31,13 +31,13 @@ True
 ```python
 >>> from idauth import AuthResponseTokenizer
 >>> private_key = BitcoinPrivateKey(compressed=True)
+>>> public_key = private_key.public_key()
 >>> blockchainid = 'ryan'
 >>> master_public_key = 'xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf'
 >>> response_tokenizer = AuthResponseTokenizer(blockchainid, master_public_key)
 >>> challenge = 'ad21e749-b8dc-4167-9486-72c92a85227a'
 >>> chain_path = 'bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39'
->>> auth_response_token = response_tokenizer.sign(
-    private_key.to_pem(), private_key.public_key().to_hex(), challenge, chain_path=chain_path)
+>>> auth_response_token = response_tokenizer.sign(private_key.to_pem(), public_key.to_hex(), challenge, chain_path=chain_path)
 >>> print auth_response_token
 eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDYxNTUuNjIiLCJibG9ja2NoYWluaWQiOiJyeWFuIiwiY2hhbGxlbmdlIjoiZTdiMWEyMTQtZDYxZi00ZmFjLTljYTUtYTIwYmI3YWQ2ZWY4IiwiaXNzdWluZ1B1YmxpY0tleSI6IjAyZjNhNmE1YTE4ZTc0N2U1YjJlMDM4NzAzNTdlZDE1NDcyYzExZGMyMTdmZTU4M2Y1NGFjOTU0NmFhOTRkN2VkOSIsIm1hc3RlclB1YmxpY0tleSI6InhwdWI2OVc1UW5UeHVBM1ZTWHpKVW9wZm0zVDVhWDUxSEpHUW84bXZ2a1Jxd1dOTmJwbmpRcDNnYjlnaHBKazZOSHh5bUxNcVdQbjNKMnFyNHZrRzdCY2M5cXF3ZzNOb20xWHdSOXlhalA5bmVtZiIsImNoYWluUGF0aCI6ImJkNjI4ODVlYzNmMGUzODM4MDQzMTE1ZjRjZTI1ZWVkZDIyY2M4NjcxMTgwM2ZiMGMxOTYwMWVlZWYxODVlMzkifQ.9NQGe4IEEGzTSQlD3giUmDkgETcDc8qbt1BMD17n3cQMJZyb3TEdXsLINyO5LmIpE5m0LqOAbtHOCKbxsRMS4w
 >>> response_tokenizer.decode(auth_response_token)

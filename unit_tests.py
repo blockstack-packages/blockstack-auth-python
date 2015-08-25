@@ -1,63 +1,73 @@
-import jwt
+import ast
 import json
-from idauth import Tokenizer, AuthRequestTokenizer, AuthResponseTokenizer
+import uuid
+import traceback
+import unittest
+from test import test_support
+from pybitcoin import BitcoinPrivateKey
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey, EllipticCurvePublicKey
 )
-from pybitcoin import BitcoinPrivateKey
 
-"""payload = {'name':'ryan'}
-private_key = ec.generate_private_key(ec.SECP256R1(), default_backend())
-public_key = private_key.public_key()
+from idauth import Tokenizer, AuthRequestTokenizer, AuthResponseTokenizer
 
-tokenizer = Tokenizer()
-encoded_token = tokenizer.encode(payload, private_key)
-print encoded_token
 
-encoded_token_2 = jwt.encode(payload, private_key, algorithm='ES256')
-print encoded_token_2
+class AuthRequestTest(unittest.TestCase):
+    def setUp(self):
+        self.request_tokenizer = AuthRequestTokenizer(
+            'onename.com', permissions=['public-profile'])
+        self.private_key = BitcoinPrivateKey(compressed=True)
+        self.sample_encoded_token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDI5OTYuMTkiLCJjaGFsbGVuZ2UiOiI5N2Y0YTA0My1hOTE1LTRmNDYtOWE1Ny01OWQyYTg3MTQ4MTMiLCJpc3N1aW5nRG9tYWluIjoib25lbmFtZS5jb20iLCJwZXJtaXNzaW9ucyI6WyJwdWJsaWMtcHJvZmlsZSJdfQ.XcAtWE2hW4z0vHkjUqA4NsyH38Fz7MygI-cKoEE2JKpKp8HWVe38LLLs2hKdFjRYKiCFuXDspkZqvNLPP0Ad1Q'
+        self.sample_decoded_token = {"issuedAt":"1440542996.19","challenge":"97f4a043-a915-4f46-9a57-59d2a8714813","issuingDomain":"onename.com","permissions":["public-profile"]}
 
-decoded_token = tokenizer.decode(encoded_token_2, verifying_key=public_key)
-print decoded_token
+    def tearDown(self):
+        pass
 
-decoded_token_2 = jwt.decode(encoded_token, key=public_key, algorithms=['ES256'])
-print decoded_token_2
-"""
+    def test_auth_request_token_encoding(self):
+        encoded_token = self.request_tokenizer.sign(self.private_key.to_pem())
+        is_valid_token = self.request_tokenizer.verify(
+            encoded_token, self.private_key.public_key().to_pem())
+        self.assertTrue(is_valid_token)
+        
+    def test_auth_request_token_decoding(self):
+        decoded_token = self.request_tokenizer.decode(self.sample_encoded_token)
+        self.assertEqual(json.loads(decoded_token), self.sample_decoded_token)
 
-tokenizer = Tokenizer()
-payload = {'name':'ryan'}
-private_key = BitcoinPrivateKey(compressed=True)
-private_key_pem = private_key.to_pem()
-public_key = private_key.public_key()
-public_key_hex = public_key.to_hex()
-public_key_pem = public_key.to_pem()
-#private_key_pem = '-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEINmVY72qsqic5sX0HPqQRfutEyBDx9+x1mzGb61kcx/RoAcGBSuBBAAK\noUQDQgAE7qwEJZRsyGS7H8laHY2IES2vfwRki33ALxEoAxdpJqfnn01IDX6NZoMJ\n1ACPt66su1KCoNgGM7r7lblUj2Aqng==\n-----END EC PRIVATE KEY-----\n'
-#public_key_pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEFEaBL9tIkLPEgn8AAwqBSVoXoMNUx1nS\nte7f443dw3M/y0WYI9X0YLSPhTUtYpyXQm5UnpGPI9zcVjvUuSE7rA==\n-----END PUBLIC KEY-----\n'
-#token = tokenizer.encode(payload, private_key_pem)
-#load_pem_private_key(signing_key, password=None, backend=default_backend())
 
-auth_tokenizer = AuthRequestTokenizer('onename.com', permissions=['public-profile'])
+class AuthResponseTest(unittest.TestCase):
+    def setUp(self):
+        self.private_key = BitcoinPrivateKey(compressed=True)
+        self.blockchainid = 'ryan'
+        self.master_public_key = 'xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf'
+        self.response_tokenizer = AuthResponseTokenizer(self.blockchainid, self.master_public_key)
+        self.sample_encoded_token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDI5OTYuMzUiLCJibG9ja2NoYWluaWQiOiJyeWFuIiwiY2hhbGxlbmdlIjoiOTdmNGEwNDMtYTkxNS00ZjQ2LTlhNTctNTlkMmE4NzE0ODEzIiwiaXNzdWluZ1B1YmxpY0tleSI6IjAzYjAxMmEyNDk4NTc4OGFmYTU0YTE1OGQzYjQzY2EwM2E4NTc2NWZmM2I3ODVmZTY2YTZjYmMwNTBiODE5ODY4OSIsIm1hc3RlclB1YmxpY0tleSI6InhwdWI2OVc1UW5UeHVBM1ZTWHpKVW9wZm0zVDVhWDUxSEpHUW84bXZ2a1Jxd1dOTmJwbmpRcDNnYjlnaHBKazZOSHh5bUxNcVdQbjNKMnFyNHZrRzdCY2M5cXF3ZzNOb20xWHdSOXlhalA5bmVtZiIsImNoYWluUGF0aCI6ImJkNjI4ODVlYzNmMGUzODM4MDQzMTE1ZjRjZTI1ZWVkZDIyY2M4NjcxMTgwM2ZiMGMxOTYwMWVlZWYxODVlMzkifQ.VgtRmUG2ynHf2Ss8f8suyO24yOnBZgiCrHPlkw9dhMRR8zcn3gWJPJMPAXFTPxgaZAZScddRgzPgtazbitgX_w'
+        self.sample_decoded_token = {"issuedAt":"1440542996.35","blockchainid":"ryan","challenge":"97f4a043-a915-4f46-9a57-59d2a8714813","issuingPublicKey":"03b012a24985788afa54a158d3b43ca03a85765ff3b785fe66a6cbc050b8198689","masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf","chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39"}
 
-encoded_token = auth_tokenizer.sign(private_key_pem)
-is_valid_token = auth_tokenizer.verify(encoded_token, public_key_pem)
-decoded_token = auth_tokenizer.decode(encoded_token)
-print encoded_token
-print is_valid_token
-print decoded_token
+    def tearDown(self):
+        pass
 
-challenge = json.loads(decoded_token)['challenge']
-print challenge
+    def test_auth_response_token_encoding(self):
+        chain_path = 'bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39'
+        challenge = str(uuid.uuid4())
+        encoded_token = self.response_tokenizer.sign(
+            self.private_key.to_pem(), self.private_key.public_key().to_hex(),
+            challenge, chain_path=chain_path)
+        is_valid_token = self.response_tokenizer.verify(
+            encoded_token, self.private_key.public_key().to_pem())
+        self.assertTrue(is_valid_token)
 
-blockchainid = 'ryan'
-master_public_key = 'xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf'
-response_tokenizer = AuthResponseTokenizer(blockchainid, master_public_key)
+    def test_auth_response_token_decoding(self):
+        decoded_token = self.response_tokenizer.decode(self.sample_encoded_token)
+        self.assertEqual(json.loads(decoded_token), self.sample_decoded_token)
 
-chain_path = 'bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39'
 
-encoded_response_token = response_tokenizer.sign(
-    private_key_pem, public_key_hex, challenge, chain_path=chain_path)
-decoded_response_token = auth_tokenizer.decode(encoded_response_token)
-print encoded_response_token
-print decoded_response_token
+def test_main():
+    test_support.run_unittest(
+        AuthRequestTest,
+        AuthResponseTest
+    )
+
+if __name__ == '__main__':
+    test_main()

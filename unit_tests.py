@@ -1,6 +1,6 @@
 import jwt
 import json
-from jwtx import Tokenizer, AuthRequestTokenizer, AuthResponseTokenizer
+from idauth import Tokenizer, AuthRequestTokenizer, AuthResponseTokenizer
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import (

@@ -4,6 +4,26 @@ Library for Blockchain ID authentication, including interfaces for generating au
 
 Also built-in is a JSON Web Token Library compatible with Bitcoin's SECP256K1.
 
+## Auth Requests
+
+### Auth Request Format
+
+```json
+{
+    "header": {
+        "typ": "JWT",
+        "alg": "ES256"
+    },
+    "payload": {
+        "issuedAt":"1440542996.19",
+        "challenge":"97f4a043-a915-4f46-9a57-59d2a8714813",
+        "issuingDomain":"onename.com",
+        "permissions":["public-profile"]
+    },
+    "signature": "MEUCIQDzUaSrgTR_tTpNSVcitKYvYWd3bc3uylMe3xCfo-QclQIgDLN1hgXSyqiEk0AGQ21XB2wzuqrotTmE_yN3pn4f_38"
+}
+```
+
 ### Signing Auth Requests
 
 ```python
@@ -24,6 +44,28 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDYxNTUuMTQiLCJjaGF
 >>> public_key = private_key.public_key()
 >>> request_tokenizer.verify(auth_request_token, public_key.to_pem())
 True
+```
+
+## Auth Responses
+
+### Auth Response Format
+
+```json
+{
+    "header": {
+        "typ": "JWT",
+        "alg": "ES256"
+    },
+    "payload": {
+        "issuedAt":"1440542996.35",
+        "blockchainid":"ryan",
+        "challenge":"97f4a043-a915-4f46-9a57-59d2a8714813",
+        "issuingPublicKey":"03b012a24985788afa54a158d3b43ca03a85765ff3b785fe66a6cbc050b8198689",
+        "masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf",
+        "chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39"
+    },
+    "signature": "MEUCIQDzUaSrgTR_tTpNSVcitKYvYWd3bc3uylMe3xCfo-QclQIgDLN1hgXSyqiEk0AGQ21XB2wzuqrotTmE_yN3pn4f_38"
+}
 ```
 
 ### Signing Auth Responses

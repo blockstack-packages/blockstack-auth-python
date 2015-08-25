@@ -43,8 +43,13 @@ class Tokenizer():
             return signing_key
         elif isinstance(signing_key, (str, unicode)):
             invalid_strings = [b'-----BEGIN PUBLIC KEY-----']
-            if any([string_value in signing_key for string_value in invalid_strings]):
-                raise ValueError('Signing key must be a valid private key, not a public key.')
+            invalid_string_matches = [
+                string_value in signing_key
+                for string_value in invalid_strings
+            ]
+            if any(invalid_string_matches):
+                raise ValueError(
+                    'Signing key must be a private key, not a public key.')
 
             try:
                 return load_der_private_key(
@@ -54,7 +59,8 @@ class Tokenizer():
                     return load_pem_private_key(
                         signing_key, password=None, backend=default_backend())
                 except Exception as e:
-                    raise ValueError('Signing key must be a valid private key PEM or DER.')
+                    raise ValueError(
+                        'Signing key must be a valid private key PEM or DER.')
         else:
             raise ValueError('Signing key must be in string or unicode format.')
 
@@ -106,7 +112,7 @@ class Tokenizer():
         else:
             raise ValueError('Invalid verification key type')
 
-    def _load_token_components(self, token):
+    def _unpack_token(self, token):
         if isinstance(token, (str, unicode)):
             token = token.encode('utf-8')
 
@@ -139,14 +145,16 @@ class Tokenizer():
         except (TypeError, binascii.Error):
             raise DecodeError('Invalid crypto padding')
 
-        return (payload, signing_input, header, signature)
+        return (header, payload, signature, signing_input)
 
     def decode(self, token, verifying_key=None):
-        payload, signing_input, header, raw_signature = self._load_token_components(token)
+        token_parts = self._unpack_token(token)
+        header, payload, raw_signature, signing_input = token_parts
 
         if verifying_key:
             verifying_key = self._load_verifying_key(verifying_key)
-            der_signature = raw_to_der_signature(raw_signature, verifying_key.curve)
+            der_signature = raw_to_der_signature(
+                raw_signature, verifying_key.curve)
             verifier = self._get_verifier(verifying_key, der_signature)
             verifier.update(signing_input)
 

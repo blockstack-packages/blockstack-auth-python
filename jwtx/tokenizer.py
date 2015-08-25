@@ -1,3 +1,10 @@
+"""
+    An interface for encoding and decoding JSON Web Tokens (JWTs)
+    ~~~~~
+    :copyright: (c) 2015 by Halfmoon Labs, Inc.
+    :license: MIT, see LICENSE for more details.
+"""
+
 import json
 import binascii
 from collections import Mapping

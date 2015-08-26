@@ -29,6 +29,8 @@ from .utils import (
     raw_to_der_signature
 )
 from .exceptions import DecodeError
+from .keys import load_signing_key
+
 
 class Tokenizer():
     def __init__(self):
@@ -38,32 +40,6 @@ class Tokenizer():
     def _get_signer(self, signing_key):
         return signing_key.signer(ec.ECDSA(hashes.SHA256()))
 
-    def _load_signing_key(self, signing_key):
-        if isinstance(signing_key, EllipticCurvePrivateKey):
-            return signing_key
-        elif isinstance(signing_key, (str, unicode)):
-            invalid_strings = [b'-----BEGIN PUBLIC KEY-----']
-            invalid_string_matches = [
-                string_value in signing_key
-                for string_value in invalid_strings
-            ]
-            if any(invalid_string_matches):
-                raise ValueError(
-                    'Signing key must be a private key, not a public key.')
-
-            try:
-                return load_der_private_key(
-                    signing_key, password=None, backend=default_backend())
-            except:
-                try:
-                    return load_pem_private_key(
-                        signing_key, password=None, backend=default_backend())
-                except Exception as e:
-                    raise ValueError(
-                        'Signing key must be a valid private key PEM or DER.')
-        else:
-            raise ValueError('Signing key must be in string or unicode format.')
-
     def encode(self, payload, signing_key):
         if not isinstance(payload, Mapping):
             raise TypeError('Expecting a mapping object, as only '
@@ -71,7 +47,7 @@ class Tokenizer():
 
         token_segments = []
 
-        signing_key = self._load_signing_key(signing_key)
+        signing_key = load_signing_key(signing_key)
 
         # prepare header
         header = {'typ': self.token_type, 'alg': self.signing_algorithm}

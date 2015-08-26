@@ -6,4 +6,5 @@
 """
 
 from .tokenizer import Tokenizer
-from .auth import AuthRequestTokenizer, AuthResponseTokenizer
+from .auth_request import AuthRequest
+from .auth_response import AuthResponse

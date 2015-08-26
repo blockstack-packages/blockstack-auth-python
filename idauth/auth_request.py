@@ -74,9 +74,22 @@ class AuthRequest():
         return json.loads(decoded_token)
 
     @classmethod
-    def verify(cls, token):
-        if not isinstance(token, (str, unicode)):
-            raise ValueError('Token must be a string')
+    def is_valid_jwt(cls, token):
         decoded_token = cls.decode(token, verify=True)
+        if decoded_token:
+            return True
+        return False
+
+    @classmethod
+    def has_valid_issuer(cls, token):
         return True
+
+    @classmethod
+    def verify(cls, token, verify_issuer=True):
+        is_valid_jwt = cls.is_valid_jwt(token)
+        if not verify_issuer:
+            return is_valid_jwt
+        has_valid_issuer = cls.has_valid_issuer(token)
+        is_valid_auth_request_token = is_valid_jwt and has_valid_issuer
+        return is_valid_auth_request_token
 

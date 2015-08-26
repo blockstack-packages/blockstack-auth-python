@@ -47,8 +47,14 @@ class AuthResponse(AuthRequest):
         return json.loads(self.decode(self.token()))
 
     @classmethod
-    def verify(cls, token):
-        is_valid_token = AuthRequest.verify(token)
-        issuer_is_valid = True
-        is_valid_auth_response_token = is_valid_token and issuer_is_valid
+    def has_valid_issuer(cls, token):
+        return True
+
+    @classmethod
+    def verify(cls, token, verify_issuer=True):
+        is_valid_jwt = AuthRequest.is_valid_jwt(token)
+        if not verify_issuer:
+            return is_valid_jwt
+        has_valid_issuer = cls.has_valid_issuer(token)
+        is_valid_auth_response_token = is_valid_jwt and has_valid_issuer
         return is_valid_auth_response_token

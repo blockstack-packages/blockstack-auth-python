@@ -6,7 +6,7 @@ Also built-in is a JSON Web Token Library compatible with Bitcoin's SECP256K1.
 
 ## Auth Requests
 
-### Auth Request Format
+### Request Format
 
 ```json
 {
@@ -24,7 +24,7 @@ Also built-in is a JSON Web Token Library compatible with Bitcoin's SECP256K1.
 }
 ```
 
-### Signing Auth Requests
+### Signing Requests
 
 ```python
 >>> from pybitcoin import BitcoinPrivateKey
@@ -38,7 +38,7 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDYxNTUuMTQiLCJjaGF
 {"issuedAt":"1440542996.19","challenge":"97f4a043-a915-4f46-9a57-59d2a8714813","issuingDomain":"onename.com","permissions":["public-profile"]}
 ```
 
-### Verifying Auth Requests
+### Verifying Requests
 
 ```python
 >>> public_key = private_key.public_key()
@@ -46,9 +46,26 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDYxNTUuMTQiLCJjaGF
 True
 ```
 
+### Permission Types
+
++ read public data
+    + entire public profile
++ read private data
+    + email
+    + birthday
+    + postal address
+    + bitcoin address
+    + credit card number
+    + friends
+    + photos
++ write public data
+    + write access to a section set aside for the app
+    + friends
+    + photos
+
 ## Auth Responses
 
-### Auth Response Format
+### Response Format
 
 ```json
 {
@@ -68,7 +85,7 @@ True
 }
 ```
 
-### Signing Auth Responses
+### Signing Responses
 
 ```python
 >>> from idauth import AuthResponseTokenizer
@@ -86,7 +103,7 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA1NDYxNTUuNjIiLCJibG9
 {"issuedAt":"1440542996.35","blockchainid":"ryan","challenge":"97f4a043-a915-4f46-9a57-59d2a8714813","issuingPublicKey":"03b012a24985788afa54a158d3b43ca03a85765ff3b785fe66a6cbc050b8198689","masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf","chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39"}
 ```
 
-### Verifying Auth Responses
+### Verifying Responses
 
 ```python
 >>> public_key = private_key.public_key()

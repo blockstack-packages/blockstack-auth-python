@@ -49,8 +49,14 @@ True
 ### Permission Types
 
 + read public data
-    + entire public profile
+    + blockchain ID and entire public profile
 + read private data
+    + name
+    + profile photo
+    + bio
+    + website
+    + city of residence
+    + social accounts
     + email
     + birthday
     + postal address
@@ -60,6 +66,7 @@ True
     + photos
 + write public data
     + write access to a section set aside for the app
++ write private data
     + friends
     + photos
 

@@ -28,11 +28,11 @@ class AuthRequestTest(unittest.TestCase):
     def test_auth_request_token_encoding(self):
         request_token = self.request_tokenizer.sign(
             self.private_key.to_pem(), self.private_key.public_key().to_hex())
-        is_valid_token = self.request_tokenizer.verify(request_token)
+        is_valid_token = AuthRequestTokenizer.verify(request_token)
         self.assertTrue(is_valid_token)
         
     def test_auth_request_token_decoding(self):
-        decoded_token = self.request_tokenizer.decode(self.sample_encoded_token)
+        decoded_token = AuthRequestTokenizer.decode(self.sample_encoded_token)
         self.assertEqual(json.loads(decoded_token), self.sample_decoded_token)
 
 
@@ -54,11 +54,11 @@ class AuthResponseTest(unittest.TestCase):
         response_token = self.response_tokenizer.sign(
             self.private_key.to_pem(), self.private_key.public_key().to_hex(),
             challenge, chain_path=chain_path)
-        is_valid_token = self.response_tokenizer.verify(response_token)
+        is_valid_token = AuthResponseTokenizer.verify(response_token)
         self.assertTrue(is_valid_token)
 
     def test_auth_response_token_decoding(self):
-        decoded_token = self.response_tokenizer.decode(self.sample_encoded_token)
+        decoded_token = AuthResponseTokenizer.decode(self.sample_encoded_token)
         self.assertEqual(json.loads(decoded_token), self.sample_decoded_token)
 
 

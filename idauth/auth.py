@@ -14,6 +14,7 @@ class AuthRequestTokenizer():
     """ Interface for creating signed auth request tokens, as well as decoding
         and verifying them.
     """
+    tokenizer = Tokenizer()
 
     def __init__(self, issuing_domain, permissions=[]):
         if not isinstance(permissions, list):
@@ -25,7 +26,6 @@ class AuthRequestTokenizer():
         if any(invalid_permissions):
             raise ValueError('Invalid permission provided')
 
-        self.tokenizer = Tokenizer()
         self.issuing_domain = issuing_domain
         self.permissions = permissions
 
@@ -43,30 +43,29 @@ class AuthRequestTokenizer():
     def sign(self, signing_key, compressed_verifying_key, encoded=True):
         """ Verifying key must be provided as a PEM.
         """
-        # signing_key = load_signing_key(signing_key)
-        # verifying_key = signing_key.public_key()
-
         payload = self._create_payload(compressed_verifying_key)
         token = self.tokenizer.encode(payload, signing_key)
         if not encoded:
             token = self.decode(token)
         return token
 
-    def decode(self, token, verify=False):
+    @classmethod
+    def decode(cls, token, verify=False):
         # decode the token without any verification
-        decoded_token = self.tokenizer.decode(token)
+        decoded_token = cls.tokenizer.decode(token)
 
         if verify:
             public_key_str = json.loads(decoded_token)['issuer']['publicKey']
             public_key = BitcoinPublicKey(str(public_key_str))
             # decode the token again, this time by performing a verification
             # with the public key we extracted
-            decoded_token = self.tokenizer.decode(token, public_key.to_pem())
+            decoded_token = cls.tokenizer.decode(token, public_key.to_pem())
 
         return decoded_token
 
-    def verify(self, token):
-        decoded_token = self.decode(token, verify=True)
+    @classmethod
+    def verify(cls, token):
+        decoded_token = cls.decode(token, verify=True)
         return True
 
 
@@ -76,7 +75,6 @@ class AuthResponseTokenizer(AuthRequestTokenizer):
     """
 
     def __init__(self, blockchainid=None, master_public_key=None):
-        self.tokenizer = Tokenizer()
         self.blockchainid = blockchainid
         self.master_public_key = master_public_key
 
@@ -107,9 +105,4 @@ class AuthResponseTokenizer(AuthRequestTokenizer):
         if not encoded:
             token = self.decode(token)
         return token
-
-    def verify(self, token):
-        decoded_token = self.decode(token, verify=True)
-        return True
-
 

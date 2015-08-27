@@ -20,7 +20,8 @@ setup(
     install_requires=[
         'cryptography==1.0.0',
         'pybitcoin==0.9.3',
-        'PyJWT==1.4.0'
+        'PyJWT==1.4.0',
+        'onename==0.2.0'
     ],
     classifiers=[
         'Intended Audience :: Developers',

@@ -6,6 +6,7 @@ from pybitcoin import BitcoinPublicKey
 from .tokenizer import Tokenizer, load_signing_key
 from .exceptions import DecodeError
 from .permissions import PERMISSION_TYPES, validate_permissions
+from .identifier import Identifier
 
 
 class AuthRequest():
@@ -68,15 +69,24 @@ class AuthRequest():
         return False
 
     @classmethod
-    def has_valid_issuer(cls, token):
-        return True
+    def has_valid_issuer(cls, token, identifier):
+        decoded_token = cls.decode(token)
+        try:
+            domain = decoded_token['issuer']['domain']
+            public_key = decoded_token['issuer']['publicKey']
+            if identifier.check_domain(domain, public_key):
+                return True
+        except KeyError:
+            pass
+        return False
 
     @classmethod
-    def verify(cls, token, verify_issuer=True):
+    def verify(cls, token, identifier=None):
         is_valid_jwt = cls.is_valid_jwt(token)
-        if not verify_issuer:
+        if not identifier:
             return is_valid_jwt
-        has_valid_issuer = cls.has_valid_issuer(token)
-        is_valid_auth_request_token = is_valid_jwt and has_valid_issuer
-        return is_valid_auth_request_token
-
+        if not isinstance(identifier, Identifier):
+            raise ValueError('"identifier" must be a valid Identifier object')
+        has_valid_issuer = cls.has_valid_issuer(token, identifier)
+        is_valid_auth_token = is_valid_jwt and has_valid_issuer
+        return is_valid_auth_token

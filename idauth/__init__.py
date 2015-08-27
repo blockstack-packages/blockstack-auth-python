@@ -8,3 +8,4 @@
 from .tokenizer import Tokenizer
 from .auth_request import AuthRequest
 from .auth_response import AuthResponse
+from .identifier import Identifier, OnenameAPIIdentifier

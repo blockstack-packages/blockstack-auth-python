@@ -2,8 +2,9 @@ import time
 import json
 
 from jwt.utils import merge_dict
+from bitmerchant.wallet import Wallet
 from .auth_request import AuthRequest
-
+from .identifier import Identifier
 
 class AuthResponse(AuthRequest):
     """ Interface for creating signed auth response tokens, as well as decoding
@@ -53,14 +54,36 @@ class AuthResponse(AuthRequest):
         return json.loads(self.decode(self.token()))
 
     @classmethod
-    def has_valid_issuer(cls, token):
-        return True
+    def master_and_child_keys_match(cls, master_public_key, child_public_key,
+                                    chain_path):
+        public_child = Wallet.deserialize(master_public_key)
+        chain_step_bytes = 4
+        max_bits_per_step = 2**31
+        chain_steps = [
+            int(chain_path[i:i+chain_step_bytes*2], 16) % max_bits_per_step
+            for i in range(0, len(chain_path), chain_step_bytes*2)
+        ]
+        for step in chain_steps:
+            public_child = public_child.get_child(step)
+        public_child_hex = public_child.get_public_key_hex(compressed=True)
+        if public_child_hex == child_public_key:
+            return True
+        return False
 
     @classmethod
-    def verify(cls, token, verify_issuer=True):
-        is_valid_jwt = AuthRequest.is_valid_jwt(token)
-        if not verify_issuer:
-            return is_valid_jwt
-        has_valid_issuer = cls.has_valid_issuer(token)
-        is_valid_auth_response_token = is_valid_jwt and has_valid_issuer
-        return is_valid_auth_response_token
+    def has_valid_issuer(cls, token, identifier):
+        decoded_token = cls.decode(token)
+        try:
+            blockchainid = decoded_token['issuer']['blockchainid']
+            master_public_key = decoded_token['issuer']['masterPublicKey']
+            chain_path = decoded_token['issuer']['chainPath']
+            child_public_key = decoded_token['issuer']['publicKey']
+        except KeyError:
+            return False
+
+        master_public_key_in_profile = identifier.check_blockchainid(
+            blockchainid, master_public_key)
+        master_and_child_keys_match = cls.master_and_child_keys_match(
+            master_public_key, child_public_key, chain_path)
+
+        return master_public_key_in_profile and master_and_child_keys_match

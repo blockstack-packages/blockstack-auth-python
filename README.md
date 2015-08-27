@@ -21,10 +21,13 @@ $ pip install idauth
         "alg": "ES256"
     },
     "payload": {
-        "issuedAt":"1440542996.19",
-        "challenge":"97f4a043-a915-4f46-9a57-59d2a8714813",
-        "issuingDomain":"onename.com",
-        "permissions":["public-profile"]
+        "issuedAt":"1440624435.28",
+        "challenge":"8befe9e5-db3a-408a-aaae-c41c1c8eee55",
+        "permissions":["blockchainid"],
+        "issuer": {
+            "publicKey":"0231e4873b5569c5811b4849cf1797f2bff3dab358b07416aa7a9af638f7182ca3",
+            "domain":"onename.com"
+        }
     },
     "signature": "MEUCIQDzUaSrgTR_tTpNSVcitKYvYWd3bc3uylMe3xCfo-QclQIgDLN1hgXSyqiEk0AGQ21XB2wzuqrotTmE_yN3pn4f_38"
 }
@@ -86,12 +89,14 @@ True
         "alg": "ES256"
     },
     "payload": {
-        "issuedAt":"1440542996.35",
-        "blockchainid":"ryan",
-        "challenge":"97f4a043-a915-4f46-9a57-59d2a8714813",
-        "issuingPublicKey":"03b012a24985788afa54a158d3b43ca03a85765ff3b785fe66a6cbc050b8198689",
-        "masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf",
-        "chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39"
+        "issuedAt":"1440624435.76",
+        "challenge":"7cd9ed5e-bb0e-49ea-a323-f28bde3a0549",
+        "issuer": {
+            "publicKey":"034e62285be512faaefa4c83becb27dc0746b7c6828a70d94d7fb0173d79da9af7",
+            "chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39",
+            "masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf",
+            "blockchainid":"ryan"
+        }
     },
     "signature": "MEUCIQDzUaSrgTR_tTpNSVcitKYvYWd3bc3uylMe3xCfo-QclQIgDLN1hgXSyqiEk0AGQ21XB2wzuqrotTmE_yN3pn4f_38"
 }

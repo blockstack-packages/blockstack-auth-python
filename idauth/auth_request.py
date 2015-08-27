@@ -6,19 +6,7 @@ from pybitcoin import BitcoinPublicKey
 
 from .tokenizer import Tokenizer, load_signing_key
 from .exceptions import DecodeError
-from .permissions import PERMISSION_TYPES
-
-
-def validate_permissions(permissions):
-    # validate permissions
-    if not isinstance(permissions, list):
-        raise ValueError('"permissions" must be a list')
-    invalid_permissions = [
-        permission not in PERMISSION_TYPES
-        for permission in permissions
-    ]
-    if any(invalid_permissions):
-        raise ValueError('Invalid permission provided')
+from .permissions import PERMISSION_TYPES, validate_permissions
 
 
 class AuthRequest():

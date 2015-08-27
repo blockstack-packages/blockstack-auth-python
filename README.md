@@ -4,6 +4,12 @@ Library for Blockchain ID authentication, including interfaces for generating au
 
 Also built-in is a JSON Web Token Library compatible with Bitcoin's SECP256K1.
 
+## Installation
+
+```
+$ pip install idauth
+```
+
 ## Auth Requests
 
 ### Request Format

@@ -14,3 +14,15 @@ PERMISSION_TYPES = {
     'birthday': {'message': 'birthday'},
     'address': {'message': 'address'}
 }
+
+
+def validate_permissions(permissions):
+    # validate permissions
+    if not isinstance(permissions, list):
+        raise ValueError('"permissions" must be a list')
+    invalid_permissions = [
+        permission not in PERMISSION_TYPES
+        for permission in permissions
+    ]
+    if any(invalid_permissions):
+        raise ValueError('Invalid permission provided')

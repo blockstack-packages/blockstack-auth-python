@@ -12,6 +12,12 @@ class AuthResponse(AuthRequest):
 
     def __init__(self, signing_key, verifying_key, challenge,
                  blockchainid=None, master_public_key=None, chain_path=None):
+        """ signing_key should be provided in PEM format
+            verifying_key should be provided in compressed hex format
+            blockchainid should be a string
+            master_public_key should be an extended public key
+            chain_path should be a string
+        """
         self.signing_key = signing_key
         self.verifying_key = verifying_key
         self.challenge = challenge

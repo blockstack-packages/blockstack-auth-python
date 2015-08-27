@@ -3,7 +3,6 @@ import uuid
 import time
 import traceback
 from pybitcoin import BitcoinPublicKey
-
 from .tokenizer import Tokenizer, load_signing_key
 from .exceptions import DecodeError
 from .permissions import PERMISSION_TYPES, validate_permissions
@@ -17,10 +16,10 @@ class AuthRequest():
 
     def __init__(self, signing_key, verifying_key, issuing_domain,
                  permissions=[]):
-        """ signing_key should be provided in PEM format.
-            verifying_ey should be provided in compressed hex format.
-            issuing_domain should be a valid domain.
-            permissions should be a list.
+        """ signing_key should be provided in PEM format
+            verifying_key should be provided in compressed hex format
+            issuing_domain should be a valid domain
+            permissions should be a list
         """
         validate_permissions(permissions)
         self.issuing_domain = issuing_domain

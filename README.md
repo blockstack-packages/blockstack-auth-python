@@ -1,6 +1,6 @@
 # Blockchain ID Auth
 
-Library for Blockchain ID authentication, including interfaces for generating auth requests tokens and auth response tokens.
+Library for Blockchain ID authentication, including interfaces for generating auth requests tokens and auth response tokens, as well as decoding and verifying them.
 
 Also built-in is a JSON Web Token Library compatible with Bitcoin's SECP256K1.
 
@@ -42,9 +42,9 @@ $ pip install idauth
 >>> auth_request = AuthRequest(private_key.to_pem(), private_key.public_key().to_hex(), 'onename.com', permissions=['public-profile'])
 >>> auth_request_token = auth_request.token()
 >>> print auth_request_token
-eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA2MjQ0MzUuMjgiLCJjaGFsbGVuZ2UiOiI4YmVmZTllNS1kYjNhLTQwOGEtYWFhZS1jNDFjMWM4ZWVlNTUiLCJwZXJtaXNzaW9ucyI6WyJibG9ja2NoYWluaWQiXSwiaXNzdWVyIjp7InB1YmxpY0tleSI6IjAyMzFlNDg3M2I1NTY5YzU4MTFiNDg0OWNmMTc5N2YyYmZmM2RhYjM1OGIwNzQxNmFhN2E5YWY2MzhmNzE4MmNhMyIsImRvbWFpbiI6Im9uZW5hbWUuY29tIn19.iBNl-mluCLPJ2ttWi4QSx2uxSPpggOugmYVN0r9MTeFfWfrTxInVpjCpMxdaEBjnXDYOgDCcYuCQYOWELhbDJw
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA3MTM0MTQuMTkiLCJjaGFsbGVuZ2UiOiIxZDc4NTBkNy01YmNmLTQ3ZDAtYTgxYy1jMDA4NTc5NzY1NDQiLCJwZXJtaXNzaW9ucyI6WyJibG9ja2NoYWluaWQiXSwiaXNzdWVyIjp7InB1YmxpY0tleSI6IjAzODI3YjZhMzRjZWJlZTZkYjEwZDEzNzg3ODQ2ZGVlYWMxMDIzYWNiODNhN2I4NjZlMTkyZmEzNmI5MTkwNjNlNCIsImRvbWFpbiI6Im9uZW5hbWUuY29tIn19.96Q_O_4DX8uPy1enosEwS2sIcyVelWhxvfj2F8rOvHldhqt9YRYilauepb95DVnmpqpCXxJb7jurT8auNCbptw
 >>> AuthRequest.decode(auth_request_token)
-{"issuedAt":"1440624435.28","challenge":"8befe9e5-db3a-408a-aaae-c41c1c8eee55","permissions":["blockchainid"],"issuer":{"publicKey":"0231e4873b5569c5811b4849cf1797f2bff3dab358b07416aa7a9af638f7182ca3","domain":"onename.com"}}
+{"issuedAt": "1440713414.19", "challenge": "1d7850d7-5bcf-47d0-a81c-c00857976544", "issuer": {"publicKey": "03827b6a34cebee6db10d13787846deeac1023acb83a7b866e192fa36b919063e4", "domain": "onename.com"}, "permissions": ["blockchainid"]}
 ```
 
 ### Verifying Requests
@@ -89,13 +89,13 @@ True
         "alg": "ES256"
     },
     "payload": {
-        "issuedAt":"1440624435.76",
-        "challenge":"7cd9ed5e-bb0e-49ea-a323-f28bde3a0549",
+        "issuedAt": "1440713414.85",
+        "challenge": "7cd9ed5e-bb0e-49ea-a323-f28bde3a0549",
         "issuer": {
-            "publicKey":"034e62285be512faaefa4c83becb27dc0746b7c6828a70d94d7fb0173d79da9af7",
-            "chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39",
-            "masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf",
-            "blockchainid":"ryan"
+            "publicKey": "03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479",
+            "blockchainid": "ryan",
+            "publicKeychain": "xpub661MyMwAqRbcFQVrQr4Q4kPjaP4JjWaf39fBVKjPdK6oGBayE46GAmKzo5UDPQdLSM9DufZiP8eauy56XNuHicBySvZp7J5wsyQVpi2axzZ",
+            "chainPath": "bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39"
         }
     },
     "signature": "MEUCIQDzUaSrgTR_tTpNSVcitKYvYWd3bc3uylMe3xCfo-QclQIgDLN1hgXSyqiEk0AGQ21XB2wzuqrotTmE_yN3pn4f_38"
@@ -114,9 +114,9 @@ True
 >>> auth_response = AuthResponse(private_key.to_pem(), private_key.public_key().to_hex(), challenge, blockchainid, master_public_key, chain_path)
 >>> auth_response_token = auth_response.token()
 >>> print auth_response_token
-eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA2MjQ0MzUuNzYiLCJjaGFsbGVuZ2UiOiI3Y2Q5ZWQ1ZS1iYjBlLTQ5ZWEtYTMyMy1mMjhiZGUzYTA1NDkiLCJpc3N1ZXIiOnsicHVibGljS2V5IjoiMDM0ZTYyMjg1YmU1MTJmYWFlZmE0YzgzYmVjYjI3ZGMwNzQ2YjdjNjgyOGE3MGQ5NGQ3ZmIwMTczZDc5ZGE5YWY3IiwiY2hhaW5QYXRoIjoiYmQ2Mjg4NWVjM2YwZTM4MzgwNDMxMTVmNGNlMjVlZWRkMjJjYzg2NzExODAzZmIwYzE5NjAxZWVlZjE4NWUzOSIsIm1hc3RlclB1YmxpY0tleSI6InhwdWI2OVc1UW5UeHVBM1ZTWHpKVW9wZm0zVDVhWDUxSEpHUW84bXZ2a1Jxd1dOTmJwbmpRcDNnYjlnaHBKazZOSHh5bUxNcVdQbjNKMnFyNHZrRzdCY2M5cXF3ZzNOb20xWHdSOXlhalA5bmVtZiIsImJsb2NrY2hhaW5pZCI6InJ5YW4ifX0.xVhijOn8jcIWGf2TXn6SGUdX6fzAG0nN6QQDicpIJpPQmhZvHxhAiIkrlgx3g0cgMmhlnUtiUiLF5DLFzouPcA
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA3MTM0MTQuODUiLCJjaGFsbGVuZ2UiOiI3Y2Q5ZWQ1ZS1iYjBlLTQ5ZWEtYTMyMy1mMjhiZGUzYTA1NDkiLCJpc3N1ZXIiOnsicHVibGljS2V5IjoiMDNmZGQ1N2FkZWMzZDQzOGVhMjM3ZmU0NmIzM2VlMWUwMTZlZGE2YjU4NWMzZTI3ZWE2NjY4NmMyZWE1MzU4NDc5IiwiY2hhaW5QYXRoIjoiYmQ2Mjg4NWVjM2YwZTM4MzgwNDMxMTVmNGNlMjVlZWRkMjJjYzg2NzExODAzZmIwYzE5NjAxZWVlZjE4NWUzOSIsInB1YmxpY0tleWNoYWluIjoieHB1YjY2MU15TXdBcVJiY0ZRVnJRcjRRNGtQamFQNEpqV2FmMzlmQlZLalBkSzZvR0JheUU0NkdBbUt6bzVVRFBRZExTTTlEdWZaaVA4ZWF1eTU2WE51SGljQnlTdlpwN0o1d3N5UVZwaTJheHpaIiwiYmxvY2tjaGFpbmlkIjoicnlhbiJ9fQ.oO7ROPKq3T3X0azAXzHsf6ub6CYy5nUUFDoy8MS22B3TlYisqsBrRtzWIQcSYiFXLytrXwAdt6vjehj3OFioDQ
 >>> AuthResponse.decode(auth_response_token)
-{"issuedAt":"1440624435.76","challenge":"7cd9ed5e-bb0e-49ea-a323-f28bde3a0549","issuer":{"publicKey":"034e62285be512faaefa4c83becb27dc0746b7c6828a70d94d7fb0173d79da9af7","chainPath":"bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39","masterPublicKey":"xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf","blockchainid":"ryan"}}
+{"issuedAt": "1440713414.85", "challenge": "7cd9ed5e-bb0e-49ea-a323-f28bde3a0549", "issuer": {"publicKey": "03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479", "blockchainid": "ryan", "publicKeychain": "xpub661MyMwAqRbcFQVrQr4Q4kPjaP4JjWaf39fBVKjPdK6oGBayE46GAmKzo5UDPQdLSM9DufZiP8eauy56XNuHicBySvZp7J5wsyQVpi2axzZ", "chainPath": "bd62885ec3f0e3838043115f4ce25eedd22cc86711803fb0c19601eeef185e39"}}
 ```
 
 ### Verifying Responses

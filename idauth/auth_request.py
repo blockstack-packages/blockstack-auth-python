@@ -74,7 +74,7 @@ class AuthRequest():
         try:
             domain = decoded_token['issuer']['domain']
             public_key = decoded_token['issuer']['publicKey']
-            if identifier.check_domain(domain, public_key):
+            if identifier.domain_matches_key(domain, public_key):
                 return True
         except KeyError:
             pass

@@ -40,7 +40,7 @@ class AuthResponse(AuthRequest):
                 'issuer': {
                     'publicKey': self.verifying_key,
                     'blockchainid': self.blockchainid,
-                    'masterPublicKey': self.master_public_key,
+                    'publicKeychain': self.master_public_key,
                     'chainPath': self.chain_path
                 }
             })
@@ -75,13 +75,13 @@ class AuthResponse(AuthRequest):
         decoded_token = cls.decode(token)
         try:
             blockchainid = decoded_token['issuer']['blockchainid']
-            master_public_key = decoded_token['issuer']['masterPublicKey']
+            master_public_key = decoded_token['issuer']['publicKeychain']
             chain_path = decoded_token['issuer']['chainPath']
             child_public_key = decoded_token['issuer']['publicKey']
         except KeyError:
             return False
 
-        master_public_key_in_profile = identifier.check_blockchainid(
+        master_public_key_in_profile = identifier.blockchainid_matches_key(
             blockchainid, master_public_key)
         master_and_child_keys_match = cls.master_and_child_keys_match(
             master_public_key, child_public_key, chain_path)

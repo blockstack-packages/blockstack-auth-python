@@ -24,10 +24,11 @@ from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey, EllipticCurvePublicKey
 )
 
-from .utils import (
-    json_encode, base64url_encode, base64url_decode, der_to_raw_signature,
+from jwt.utils import (
+    base64url_encode, base64url_decode, der_to_raw_signature,
     raw_to_der_signature
 )
+from .utils import json_encode
 from .exceptions import DecodeError
 from .keys import load_signing_key
 

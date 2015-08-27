@@ -18,8 +18,9 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     install_requires=[
-        'cryptography>=1.0.0',
-        'pybitcoin>=0.9.1'
+        'cryptography==1.0.0',
+        'pybitcoin==0.9.3',
+        'PyJWT==1.4.0'
     ],
     classifiers=[
         'Intended Audience :: Developers',

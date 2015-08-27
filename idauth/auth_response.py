@@ -1,7 +1,7 @@
 import time
 import json
 
-from .utils import merge_dict
+from jwt.utils import merge_dict
 from .auth_request import AuthRequest
 
 

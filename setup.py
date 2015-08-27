@@ -21,7 +21,8 @@ setup(
         'cryptography==1.0.0',
         'pybitcoin==0.9.3',
         'PyJWT==1.4.0',
-        'onename==0.2.0'
+        'onename==0.2.0',
+        'bitmerchant==0.1.7'
     ],
     classifiers=[
         'Intended Audience :: Developers',

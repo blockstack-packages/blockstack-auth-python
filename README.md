@@ -125,3 +125,26 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA3MTM0MTQuODUiLCJjaGF
 >>> AuthResponse.verify(auth_response_token)
 True
 ```
+
+### Response Types
+
+There are two types of auth responses - pseudo-anonymous auth responses and identified auth responses.
+
+With pseudo-anonymous auth responses, only a persistent public key is specified, as well as optional private information. No blockchain ID, and by extension public profile, is provided by the user.
+
+With identified auth responses, the user additionally provides a blockchain ID, as well as evidence that they are the owner of said blockchain ID.
+
+### How Response Verification Works
+
+Pseudo-anonymous auth response verification only requires a single step - verification that the token is a valid JWT that was signed by the specified public key.
+
+Identified auth responses, meanwhile, require two additional verification steps:
+
+1. verification that the provided public keychain and chain path combo together can be used to derive the public key of the signer
+2. verification that the provided public keychain is explicitly specified by the user in his/her blockchain ID profile as a keychain that has authorization to perform authentication
+
+The public keychain is verified against the chain path and public key in the following way:
+
+1. the chain path is split up into 8 32-bit pieces, which are each modded with 2^31, yielding 8 31-bit "chain steps"
+2. each chain step is used in succession to produce a child key from the previous parent key until a final child key (aka "ancestor" key) is produced
+3. the ancestor key is checked for equality with the public key of the signer

@@ -20,7 +20,7 @@ class AuthResponse(AuthRequest):
     """
 
     def __init__(self, signing_key, verifying_key, challenge,
-                 blockchainid=None, master_public_key=None, chain_path=None):
+                 blockchainid=None, public_keychain=None, chain_path=None):
         """ signing_key should be provided in PEM format
             verifying_key should be provided in compressed hex format
             blockchainid should be a string
@@ -31,7 +31,7 @@ class AuthResponse(AuthRequest):
         self.verifying_key = verifying_key
         self.challenge = challenge
         self.blockchainid = blockchainid
-        self.master_public_key = master_public_key
+        self.public_keychain = public_keychain
         self.chain_path = chain_path
 
     def _payload(self):
@@ -43,12 +43,12 @@ class AuthResponse(AuthRequest):
             'challenge': self.challenge
         }
 
-        if self.chain_path and self.blockchainid and self.master_public_key:
+        if self.chain_path and self.blockchainid and self.public_keychain:
             payload = merge_dict(payload, {
                 'issuer': {
                     'publicKey': self.verifying_key,
                     'blockchainid': self.blockchainid,
-                    'publicKeychain': self.master_public_key,
+                    'publicKeychain': self.public_keychain,
                     'chainPath': self.chain_path
                 }
             })
@@ -62,9 +62,9 @@ class AuthResponse(AuthRequest):
         return json.loads(self.decode(self.token()))
 
     @classmethod
-    def master_and_child_keys_match(cls, master_public_key, child_public_key,
+    def master_and_child_keys_match(cls, public_keychain, child_public_key,
                                     chain_path):
-        public_child = Wallet.deserialize(master_public_key)
+        public_child = Wallet.deserialize(public_keychain)
         chain_step_bytes = 4
         max_bits_per_step = 2**31
         chain_steps = [
@@ -79,13 +79,13 @@ class AuthResponse(AuthRequest):
         return False
 
     @classmethod
-    def master_public_key_in_profile(cls, blockchainid, master_public_key,
+    def public_keychain_in_profile(cls, blockchainid, public_keychain,
                                      resolver):
         profile = resolver.get_profile(blockchainid)
         if 'auth' in profile:
             for auth_item in profile['auth']:
-                if ('masterPublicKey' in auth_item and
-                    auth_item['masterPublickey'] == master_public_key):
+                if ('publicKeychain' in auth_item and
+                    auth_item['publicKeychain'] == public_keychain):
                     return True
         return False
 
@@ -94,15 +94,15 @@ class AuthResponse(AuthRequest):
         decoded_token = cls.decode(token)
         try:
             blockchainid = decoded_token['issuer']['blockchainid']
-            master_public_key = decoded_token['issuer']['publicKeychain']
+            public_keychain = decoded_token['issuer']['publicKeychain']
             chain_path = decoded_token['issuer']['chainPath']
             child_public_key = decoded_token['issuer']['publicKey']
         except KeyError:
             return False
 
-        master_public_key_in_profile = cls.master_public_key_in_profile(
-            blockchainid, master_public_key, resolver)
+        public_keychain_in_profile = cls.public_keychain_in_profile(
+            blockchainid, public_keychain, resolver)
         master_and_child_keys_match = cls.master_and_child_keys_match(
-            master_public_key, child_public_key, chain_path)
+            public_keychain, child_public_key, chain_path)
 
-        return master_public_key_in_profile and master_and_child_keys_match
+        return public_keychain_in_profile and master_and_child_keys_match

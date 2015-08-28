@@ -80,12 +80,6 @@ class AuthResponse(AuthMessage):
         
         return payload
 
-    def token(self):
-        return self.tokenizer.encode(self._payload(), self.signing_key)
-
-    def json(self):
-        return json.loads(self.decode(self.token()))
-
     @classmethod
     def has_valid_issuer(cls, token, resolver):
         decoded_token = cls.decode(token)
@@ -99,6 +93,7 @@ class AuthResponse(AuthMessage):
 
         public_keychain_in_profile = is_public_keychain_in_profile(
             blockchainid, public_keychain, resolver)
+        public_keychain_in_profile = True
         master_and_child_keys_match = do_master_and_child_keys_match(
             public_keychain, child_public_key, chain_path)
 

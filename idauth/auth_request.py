@@ -50,12 +50,6 @@ class AuthRequest(AuthMessage):
             'permissions': self.permissions
         }
 
-    def token(self):
-        return self.tokenizer.encode(self._payload(), self.signing_key)
-
-    def json(self):
-        return json.loads(self.decode(self.token()))
-
     @classmethod
     def has_valid_issuer(cls, token, resolver):
         decoded_token = cls.decode(token)

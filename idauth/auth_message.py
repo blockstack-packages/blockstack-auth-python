@@ -21,15 +21,15 @@ class AuthMessage():
     def _payload(self):
         raise NotImplementedError('')
 
-    def token(self):
-        raise NotImplementedError('')
-
-    def json(self):
-        raise NotImplementedError('')
-
     @classmethod
     def has_valid_issuer(cls):
         raise NotImplementedError('')
+
+    def token(self):
+        return self.tokenizer.encode(self._payload(), self.signing_key)
+
+    def json(self):
+        return json.loads(self.decode(self.token()))
 
     @classmethod
     def decode(cls, token, verify=False):

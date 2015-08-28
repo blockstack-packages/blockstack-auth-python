@@ -54,6 +54,26 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWRBdCI6IjE0NDA3MTM0MTQuMTkiLCJjaGF
 True
 ```
 
+### Request Types
+
+There are two types of auth requests: signed requests and unsigned requests.
+
+Signed requests are by far the norm and should be required for any app that has a server that can store private keys and sign messages. The majority of web apps, mobile apps and desktop apps that require user authentication will fall into this category.
+
+Unsigned requests are very specific type of auth request where the request is coming from a desktop app or mobile app that does not have any server that can sign messages. An example of this would be a peer-to-peer commerce app.
+
+Unsigned requests do not require verification and instead have a unique authentication method as follows:
+
+1. the desktop app sends a request that includes an identifier that uniquely identifies the client software on the P2P network
+2. the user takes the identifier, visually makes sure it was the same identifier that was shown in the original app, and publicly posts it in his/her profile to demonstrate access to the blockchain ID
+
+### How Signed Request Verification Works
+
+Two steps are required to verify a signed auth request:
+
+1. verification that the token is a valid JWT that was signed by the specified public key
+2. verification that the specified public key is included in the DKIM records of the specified domain
+
 ### Permission Types
 
 + read public data

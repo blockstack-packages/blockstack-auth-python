@@ -14,7 +14,7 @@ from pybitcoin import BitcoinPublicKey
 from .tokenizer import Tokenizer, load_signing_key
 from .exceptions import DecodeError
 from .permissions import PERMISSION_TYPES, validate_permissions
-from .identifier import Identifier
+from .resolver import Resolver
 
 
 class AuthRequest():
@@ -77,24 +77,30 @@ class AuthRequest():
         return False
 
     @classmethod
-    def has_valid_issuer(cls, token, identifier):
+    def domain_and_public_key_match(cls, domain, public_key, resolver):
+        dkim_info = resolver.get_dkim(domain)
+        if 'public_key' in dkim_info:
+            if public_key == dkim_info['public_key']:
+                return True
+        return False
+
+    @classmethod
+    def has_valid_issuer(cls, token, resolver):
         decoded_token = cls.decode(token)
         try:
             domain = decoded_token['issuer']['domain']
             public_key = decoded_token['issuer']['publicKey']
-            if identifier.domain_matches_key(domain, public_key):
-                return True
         except KeyError:
             pass
-        return False
+        return cls.domain_and_public_key_match(domain, public_key, resolver)
 
     @classmethod
-    def verify(cls, token, identifier=None):
+    def verify(cls, token, resolver=None):
         is_valid_jwt = cls.is_valid_jwt(token)
-        if not identifier:
+        if not resolver:
             return is_valid_jwt
-        if not isinstance(identifier, Identifier):
-            raise ValueError('"identifier" must be a valid Identifier object')
-        has_valid_issuer = cls.has_valid_issuer(token, identifier)
+        if not isinstance(resolver, Resolver):
+            raise ValueError('"resolver" must be a valid Resolver object')
+        has_valid_issuer = cls.has_valid_issuer(token, resolver)
         is_valid_auth_token = is_valid_jwt and has_valid_issuer
         return is_valid_auth_token

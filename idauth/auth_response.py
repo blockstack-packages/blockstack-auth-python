@@ -12,7 +12,7 @@ import json
 from jwt.utils import merge_dict
 from bitmerchant.wallet import Wallet
 from .auth_request import AuthRequest
-from .identifier import Identifier
+from .resolver import Resolver
 
 class AuthResponse(AuthRequest):
     """ Interface for creating signed auth response tokens, as well as decoding
@@ -79,7 +79,18 @@ class AuthResponse(AuthRequest):
         return False
 
     @classmethod
-    def has_valid_issuer(cls, token, identifier):
+    def master_public_key_in_profile(cls, blockchainid, master_public_key,
+                                     resolver):
+        profile = resolver.get_profile(blockchainid)
+        if 'auth' in profile:
+            for auth_item in profile['auth']:
+                if ('masterPublicKey' in auth_item and
+                    auth_item['masterPublickey'] == master_public_key):
+                    return True
+        return False
+
+    @classmethod
+    def has_valid_issuer(cls, token, resolver):
         decoded_token = cls.decode(token)
         try:
             blockchainid = decoded_token['issuer']['blockchainid']
@@ -89,8 +100,8 @@ class AuthResponse(AuthRequest):
         except KeyError:
             return False
 
-        master_public_key_in_profile = identifier.blockchainid_matches_key(
-            blockchainid, master_public_key)
+        master_public_key_in_profile = cls.master_public_key_in_profile(
+            blockchainid, master_public_key, resolver)
         master_and_child_keys_match = cls.master_and_child_keys_match(
             master_public_key, child_public_key, chain_path)
 

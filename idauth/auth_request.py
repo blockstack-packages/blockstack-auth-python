@@ -11,14 +11,7 @@ import uuid
 import time
 from .permissions import PERMISSION_TYPES, validate_permissions
 from .auth_message import AuthMessage
-
-
-def domain_and_public_key_match(domain, public_key, resolver):
-    dkim_info = resolver.get_dkim(domain)
-    if 'public_key' in dkim_info:
-        if public_key == dkim_info['public_key']:
-            return True
-    return False
+from .identification import domain_and_public_key_match
 
 
 class AuthRequest(AuthMessage):

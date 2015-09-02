@@ -29,7 +29,7 @@ from jwt.utils import (
     raw_to_der_signature
 )
 from .utils import json_encode
-from .exceptions import DecodeError
+from jwt import DecodeError
 from .keys import load_signing_key
 
 

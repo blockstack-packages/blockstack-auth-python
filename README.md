@@ -1,4 +1,4 @@
-# Blockchain ID Auth
+# Blockchain ID Auth - Python
 
 Library for Blockchain ID authentication, including interfaces for generating auth requests tokens and auth response tokens, as well as decoding and verifying them.
 

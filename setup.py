@@ -7,14 +7,14 @@ idauth
 from setuptools import setup, find_packages
 
 setup(
-    name='idauth',
+    name='blockchainauth',
     version='0.0.0',
-    url='https://github.com/blockstack/blockchain-id-auth',
+    url='https://github.com/blockstack/blockchain-auth-python',
     license='MIT',
     author='Blockstack Developers',
     author_email='hello@onename.com',
-    description=("Blockchain ID Auth Library"),
-    keywords='bitcoin btc litecoin namecoin dogecoin cryptocurrency',
+    description=("Blockchain Auth Library"),
+    keywords='blockchain auth authentication id identity login bitcoin cryptocurrency',
     packages=find_packages(),
     zip_safe=False,
     install_requires=[
@@ -32,5 +32,5 @@ setup(
         'Topic :: Internet',
         'Topic :: Security :: Cryptography',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
+    ]
 )

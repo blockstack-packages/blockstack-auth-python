@@ -1,13 +1,13 @@
-# Blockchain ID Auth - Python
+# Blockchain Auth - Python
 
-Blockchain ID Authentication Library for generating, decoding and verifying auth request and auth response tokens.
+A Blockchain ID authentication library written in python that supports generating, decoding and verifying auth request and auth response tokens.
 
 [![Read the Wiki](https://raw.githubusercontent.com/blockstack/blockstack/master/images/read-the-wiki.png)](https://github.com/blockstack/blockstack/wiki/Blockchain-ID-Auth)
 
 ## Installation
 
 ```
-$ pip install idauth
+$ pip install blockchainauth
 ```
 
 ## Auth Requests
@@ -37,7 +37,7 @@ $ pip install idauth
 
 ```python
 >>> from pybitcoin import BitcoinPrivateKey
->>> from idauth import AuthRequest
+>>> from blockchainauth import AuthRequest
 >>> private_key = BitcoinPrivateKey(compressed=True)
 >>> auth_request = AuthRequest(private_key.to_pem(), private_key.public_key().to_hex(), 'onename.com', permissions=['public-profile'])
 >>> auth_request_token = auth_request.token()
@@ -81,7 +81,7 @@ True
 ### Signing Responses
 
 ```python
->>> from idauth import AuthResponse
+>>> from blockchainauth import AuthResponse
 >>> private_key = BitcoinPrivateKey(compressed=True)
 >>> blockchainid = 'ryan'
 >>> master_public_key = 'xpub69W5QnTxuA3VSXzJUopfm3T5aX51HJGQo8mvvkRqwWNNbpnjQp3gb9ghpJk6NHxymLMqWPn3J2qr4vkG7Bcc9qqwg3Nom1XwR9yajP9nemf'

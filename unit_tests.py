@@ -19,7 +19,7 @@ from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey, EllipticCurvePublicKey
 )
 
-from idauth import Tokenizer, AuthRequest, AuthResponse, OnenameAPIResolver
+from blockchainauth import Tokenizer, AuthRequest, AuthResponse, OnenameAPIResolver
 from settings import ONENAME_APP_ID, ONENAME_APP_SECRET
 
 

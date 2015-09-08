@@ -155,7 +155,7 @@ class Tokenizer():
         token = { 
             "header": header,
             "payload": payload,
-            "signature": raw_signature
+            "signature": base64url_encode(raw_signature)
         }
         return token
 

@@ -58,21 +58,39 @@ class AuthResponse(AuthMessage):
     @classmethod
     def has_valid_issuer(cls, token, resolver):
         decoded_token = cls.decode(token)
+        payload = decoded_token['payload']
         try:
-            blockchainid = decoded_token['issuer']['blockchainid']
-            public_keychain = decoded_token['issuer']['publicKeychain']
-            chain_path = decoded_token['issuer']['chainPath']
-            child_public_key = decoded_token['issuer']['publicKey']
+            issuer = payload['issuer']
         except KeyError:
+            return False
+
+        anon_issuer_keys = set(['publicKey'])
+        identified_issuer_keys = anon_issuer_keys.union(
+            set(['blockchainid', 'publicKeychain', 'chainPath']))
+
+        # if all three identifying values are here, proceed
+        if set(issuer.keys()) == identified_issuer_keys:
+            child_public_key = issuer['publicKey']
+            blockchainid = issuer['blockchainid']
+            public_keychain = issuer['publicKeychain']
+            chain_path = issuer['chainPath']
+        # if all three identifying values are missing, the anon issuer is valid
+        elif set(issuer.keys()) == anon_issuer_keys:
+            return True
+        # if 1-2 of the identifying values are present, the issuer is invalid
+        else:
             return False
 
         master_and_child_keys_match = do_master_and_child_keys_match(
             public_keychain, child_public_key, chain_path)
 
+        # if the master and child keys don't match, the issuer is invalid
         if not master_and_child_keys_match:
             return False
 
         public_keychain_in_profile = is_public_keychain_in_profile(
             blockchainid, public_keychain, resolver)
 
+        # consider the issuer valid only if the public keychain matches a
+        # blockchain ID profile AND the included master and child keys match
         return public_keychain_in_profile and master_and_child_keys_match

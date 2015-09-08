@@ -7,6 +7,8 @@
 """
 
 import json
+import traceback
+from jwt import DecodeError
 from pybitcoin import BitcoinPublicKey
 from .tokenizer import Tokenizer
 from .resolver import Resolver
@@ -32,27 +34,32 @@ class AuthMessage():
         return json.loads(self.decode(self.token()))
 
     @classmethod
-    def decode(cls, token, verify=False):
+    def decode(cls, token):
         if not isinstance(token, (str, unicode)):
             raise ValueError('Token must be a string')
         # decode the token without any verification
-        decoded_token = cls.tokenizer.decode(token)
-
-        if verify:
-            public_key_str = json.loads(decoded_token)['issuer']['publicKey']
-            public_key = BitcoinPublicKey(str(public_key_str))
-            # decode the token again, this time by performing a verification
-            # with the public key we extracted
-            decoded_token = cls.tokenizer.decode(token, public_key.to_pem())
-
-        return json.loads(decoded_token)
+        return cls.tokenizer.decode(token)
 
     @classmethod
     def is_valid_jwt(cls, token):
-        decoded_token = cls.decode(token, verify=True)
-        if decoded_token:
-            return True
-        return False
+        # decode the token
+        try:
+            decoded_token = cls.decode(token)
+        except DecodeError:
+            traceback.print_exc()
+            return False
+
+        # extract the public key from the token
+        try:
+            payload = decoded_token['payload']
+            public_key_str = payload['issuer']['publicKey']
+            public_key = BitcoinPublicKey(str(public_key_str))
+        except KeyError:
+            traceback.print_exc()
+            return False
+
+        # return whether the token is verified/valid
+        return cls.tokenizer.verify(token, public_key.to_pem())
 
     @classmethod
     def verify(cls, token, resolver=None):

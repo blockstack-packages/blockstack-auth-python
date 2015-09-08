@@ -46,11 +46,11 @@ class AuthRequest(AuthMessage):
     @classmethod
     def has_valid_issuer(cls, token, resolver):
         decoded_token = cls.decode(token)
+        payload = decoded_token['payload']
         try:
-            domain = decoded_token['issuer']['domain']
-            public_key = decoded_token['issuer']['publicKey']
+            domain = payload['issuer']['domain']
+            public_key = payload['issuer']['publicKey']
         except KeyError:
-            pass
+            return False
         return domain_and_public_key_match(domain, public_key, resolver)
-
 

@@ -28,8 +28,8 @@ from jwt.utils import (
     base64url_encode, base64url_decode, der_to_raw_signature,
     raw_to_der_signature
 )
-from .utils import json_encode
 from jwt import DecodeError
+from .utils import json_encode
 from .keys import load_signing_key
 
 
@@ -113,9 +113,14 @@ class Tokenizer():
             raise DecodeError('Invalid header string: must be a json object')
 
         try:
-            payload = base64url_decode(payload_segment)
+            payload_data = base64url_decode(payload_segment)
         except (TypeError, binascii.Error):
             raise DecodeError('Invalid payload padding')
+
+        try:
+            payload = json.loads(payload_data.decode('utf-8'))
+        except ValueError as e:
+            raise DecodeError('Invalid payload string: %s' % e)
 
         try:
             signature = base64url_decode(crypto_segment)
@@ -124,21 +129,33 @@ class Tokenizer():
 
         return (header, payload, signature, signing_input)
 
-    def decode(self, token, verifying_key=None):
+    def verify(self, token, verifying_key):
+        # grab the token parts
         token_parts = self._unpack_token(token)
         header, payload, raw_signature, signing_input = token_parts
+        # load the verifying key
+        verifying_key = self._load_verifying_key(verifying_key)
+        # convert the raw_signature to DER format
+        der_signature = raw_to_der_signature(
+            raw_signature, verifying_key.curve)
+        # initialize the verifier
+        verifier = self._get_verifier(verifying_key, der_signature)
+        verifier.update(signing_input)
+        # check to see whether the signature is valid
+        try:
+            verifier.verify()
+        except InvalidSignature:
+            # raise DecodeError('Signature verification failed')
+            return False
+        return True
 
-        if verifying_key:
-            verifying_key = self._load_verifying_key(verifying_key)
-            der_signature = raw_to_der_signature(
-                raw_signature, verifying_key.curve)
-            verifier = self._get_verifier(verifying_key, der_signature)
-            verifier.update(signing_input)
-
-            try:
-                verifier.verify()
-            except InvalidSignature:
-                raise DecodeError('Signature verification failed')
-
-        return payload
+    def decode(self, token):
+        token_parts = self._unpack_token(token)
+        header, payload, raw_signature, signing_input = token_parts
+        token = { 
+            "header": header,
+            "payload": payload,
+            "signature": raw_signature
+        }
+        return token
 

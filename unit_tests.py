@@ -14,6 +14,7 @@ import unittest
 from test import test_support
 from pybitcoin import BitcoinPrivateKey
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.backends.openssl import backend as openssl_backend
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey, EllipticCurvePublicKey
@@ -50,6 +51,15 @@ class AuthRequestTest(unittest.TestCase):
         decoded_token = AuthRequest.decode(self.sample_encoded_token)
         decoded_token_payload = decoded_token['payload']
         self.assertEqual(decoded_token_payload, self.sample_decoded_token_payload)
+
+    def test_custom_openssl_backend(self):
+        auth_request = AuthRequest(
+            self.private_key.to_pem(), self.private_key.public_key().to_hex(),
+            self.domain, self.permissions, crypto_backend=openssl_backend)
+        auth_request_token = auth_request.token()
+
+        is_valid_token = AuthRequest.verify(auth_request_token, self.resolver)
+        self.assertTrue(is_valid_token)
 
 
 class AuthResponseTest(unittest.TestCase):

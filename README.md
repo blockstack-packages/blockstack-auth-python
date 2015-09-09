@@ -1,5 +1,10 @@
 # Blockchain Auth - Python
 
+[![CircleCI](https://img.shields.io/circleci/project/blockstack/blockchain-auth-python.svg)](https://pypi.python.org/pypi/blockchain-auth-python/)
+[![Slack](http://slack.blockstack.org/badge.svg)](http://slack.blockstack.org/)
+[![PyPI](https://img.shields.io/pypi/v/blockchain-auth-python.svg)](https://pypi.python.org/pypi/blockchain-auth-python/)
+[![PyPI](https://img.shields.io/pypi/dm/blockchain-auth-python.svg)](https://pypi.python.org/pypi/blockchain-auth-python/)
+
 A Blockchain ID authentication library written in python that supports generating, decoding and verifying auth request and auth response tokens.
 
 [![Read the Wiki](https://raw.githubusercontent.com/blockstack/blockchain-id/master/images/read-the-wiki.png)](https://github.com/blockstack/blockchain-id/wiki/Blockchain-ID-Auth)

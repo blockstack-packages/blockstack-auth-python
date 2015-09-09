@@ -8,21 +8,15 @@
 """
 
 import json
+import base64
 import binascii
 import traceback
 from collections import Mapping
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import (
-    load_der_private_key, load_pem_private_key, load_der_public_key,
-    load_pem_public_key
-)
 from cryptography.hazmat.primitives.asymmetric import ec, padding
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives.asymmetric.ec import (
-    EllipticCurvePrivateKey, EllipticCurvePublicKey
-)
 
 from jwt.utils import (
     base64url_encode, base64url_decode, der_to_raw_signature,
@@ -30,16 +24,18 @@ from jwt.utils import (
 )
 from jwt import DecodeError
 from .utils import json_encode
-from .keys import load_signing_key
+from .keys import load_signing_key, load_verifying_key
 
 
 class Tokenizer():
-    def __init__(self):
+    def __init__(self, crypto_backend=default_backend()):
+        self.crypto_backend = crypto_backend
         self.token_type = 'JWT'
         self.signing_algorithm = 'ES256'
+        self.signing_function = ec.ECDSA(hashes.SHA256())
 
     def _get_signer(self, signing_key):
-        return signing_key.signer(ec.ECDSA(hashes.SHA256()))
+        return signing_key.signer(self.signing_function)
 
     def encode(self, payload, signing_key):
         if not isinstance(payload, Mapping):
@@ -48,7 +44,7 @@ class Tokenizer():
 
         token_segments = []
 
-        signing_key = load_signing_key(signing_key)
+        signing_key = load_signing_key(signing_key, self.crypto_backend)
 
         # prepare header
         header = {'typ': self.token_type, 'alg': self.signing_algorithm}
@@ -70,26 +66,10 @@ class Tokenizer():
         return token
 
     def _get_verifier(self, verifying_key, signature):
-        return verifying_key.verifier(signature, ec.ECDSA(hashes.SHA256()))
+        return verifying_key.verifier(signature, self.signing_function)
 
-    def _load_verifying_key(self, verifying_key):
-        if isinstance(verifying_key, EllipticCurvePublicKey):
-            return verifying_key
-        elif isinstance(verifying_key, (str, unicode)):
-            try:
-                return load_der_public_key(
-                    verifying_key, backend=default_backend())
-            except:
-                try:
-                    return load_pem_public_key(
-                        verifying_key, backend=default_backend())
-                except Exception as e:
-                    traceback.print_exc()
-                    raise ValueError('Invalid verifying key format')
-        else:
-            raise ValueError('Invalid verification key type')
-
-    def _unpack_token(self, token):
+    @classmethod
+    def _unpack(cls, token):
         if isinstance(token, (str, unicode)):
             token = token.encode('utf-8')
 
@@ -131,10 +111,10 @@ class Tokenizer():
 
     def verify(self, token, verifying_key):
         # grab the token parts
-        token_parts = self._unpack_token(token)
+        token_parts = self._unpack(token)
         header, payload, raw_signature, signing_input = token_parts
         # load the verifying key
-        verifying_key = self._load_verifying_key(verifying_key)
+        verifying_key = load_verifying_key(verifying_key, self.crypto_backend)
         # convert the raw_signature to DER format
         der_signature = raw_to_der_signature(
             raw_signature, verifying_key.curve)
@@ -149,9 +129,9 @@ class Tokenizer():
             return False
         return True
 
-    def decode(self, token):
-        token_parts = self._unpack_token(token)
-        header, payload, raw_signature, signing_input = token_parts
+    @classmethod
+    def decode(cls, token):
+        header, payload, raw_signature, signing_input = cls._unpack(token)
         token = { 
             "header": header,
             "payload": payload,

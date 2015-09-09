@@ -9,9 +9,11 @@
 import json
 import uuid
 import time
+from cryptography.hazmat.backends import default_backend
 from .permissions import PERMISSION_TYPES, validate_permissions
 from .auth_message import AuthMessage
 from .identification import domain_and_public_key_match
+from .tokenizer import Tokenizer
 
 
 class AuthRequest(AuthMessage):
@@ -20,13 +22,14 @@ class AuthRequest(AuthMessage):
     """
 
     def __init__(self, signing_key, verifying_key, issuing_domain,
-                 permissions=[]):
+                 permissions=[], crypto_backend=default_backend()):
         """ signing_key should be provided in PEM format
             verifying_key should be provided in compressed hex format
             issuing_domain should be a valid domain
             permissions should be a list
         """
         validate_permissions(permissions)
+        self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
         self.issuing_domain = issuing_domain
         self.permissions = permissions
         self.signing_key = signing_key

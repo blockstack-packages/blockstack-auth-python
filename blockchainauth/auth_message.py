@@ -10,13 +10,11 @@ import json
 import traceback
 from jwt import DecodeError
 from pybitcoin import BitcoinPublicKey
-from .tokenizer import Tokenizer
 from .resolver import Resolver
+from .tokenizer import Tokenizer
 
 
 class AuthMessage():
-    tokenizer = Tokenizer()
-
     def __init__(self):
         raise NotImplementedError('')
 
@@ -31,17 +29,17 @@ class AuthMessage():
         return self.tokenizer.encode(self._payload(), self.signing_key)
 
     def json(self):
-        return json.loads(self.decode(self.token()))
+        return json.loads(self.decode(self.token(), self.tokenizer))
 
     @classmethod
     def decode(cls, token):
         if not isinstance(token, (str, unicode)):
             raise ValueError('Token must be a string')
         # decode the token without any verification
-        return cls.tokenizer.decode(token)
+        return Tokenizer.decode(token)
 
     @classmethod
-    def is_valid_jwt(cls, token):
+    def is_valid_jwt(cls, token, tokenizer):
         # decode the token
         try:
             decoded_token = cls.decode(token)
@@ -59,11 +57,11 @@ class AuthMessage():
             return False
 
         # return whether the token is verified/valid
-        return cls.tokenizer.verify(token, public_key.to_pem())
+        return tokenizer.verify(token, public_key.to_pem())
 
     @classmethod
-    def verify(cls, token, resolver=None):
-        is_valid_jwt = cls.is_valid_jwt(token)
+    def verify(cls, token, resolver=None, tokenizer=Tokenizer()):
+        is_valid_jwt = cls.is_valid_jwt(token, tokenizer)
         if not resolver:
             return is_valid_jwt
         if not isinstance(resolver, Resolver):

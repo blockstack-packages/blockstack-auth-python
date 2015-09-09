@@ -9,9 +9,11 @@
 import time
 import json
 from jwt.utils import merge_dict
+from cryptography.hazmat.backends import default_backend
 from .auth_message import AuthMessage
 from .identification import is_public_keychain_in_profile
 from .keychain import do_master_and_child_keys_match
+from .tokenizer import Tokenizer
 
 
 class AuthResponse(AuthMessage):
@@ -20,17 +22,19 @@ class AuthResponse(AuthMessage):
     """
 
     def __init__(self, signing_key, verifying_key, challenge,
-                 blockchainid=None, public_keychain=None, chain_path=None):
+                 blockchain_id=None, public_keychain=None, chain_path=None,
+                 crypto_backend=default_backend()):
         """ signing_key should be provided in PEM format
             verifying_key should be provided in compressed hex format
             blockchainid should be a string
             master_public_key should be an extended public key
             chain_path should be a string
         """
+        self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
         self.signing_key = signing_key
         self.verifying_key = verifying_key
         self.challenge = challenge
-        self.blockchainid = blockchainid
+        self.blockchain_id = blockchain_id
         self.public_keychain = public_keychain
         self.chain_path = chain_path
 
@@ -43,11 +47,11 @@ class AuthResponse(AuthMessage):
             'challenge': self.challenge
         }
 
-        if self.chain_path and self.blockchainid and self.public_keychain:
+        if self.chain_path and self.blockchain_id and self.public_keychain:
             payload = merge_dict(payload, {
                 'issuer': {
                     'publicKey': self.verifying_key,
-                    'blockchainid': self.blockchainid,
+                    'blockchainid': self.blockchain_id,
                     'publicKeychain': self.public_keychain,
                     'chainPath': self.chain_path
                 }
@@ -71,7 +75,7 @@ class AuthResponse(AuthMessage):
         # if all three identifying values are here, proceed
         if set(issuer.keys()) == identified_issuer_keys:
             child_public_key = issuer['publicKey']
-            blockchainid = issuer['blockchainid']
+            blockchain_id = issuer['blockchainid']
             public_keychain = issuer['publicKeychain']
             chain_path = issuer['chainPath']
         # if all three identifying values are missing, the anon issuer is valid
@@ -89,7 +93,7 @@ class AuthResponse(AuthMessage):
             return False
 
         public_keychain_in_profile = is_public_keychain_in_profile(
-            blockchainid, public_keychain, resolver)
+            blockchain_id, public_keychain, resolver)
 
         # consider the issuer valid only if the public keychain matches a
         # blockchain ID profile AND the included master and child keys match

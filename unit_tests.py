@@ -40,12 +40,15 @@ class AuthRequestTest(unittest.TestCase):
 
     def test_auth_request_token_encoding(self):
         auth_request = AuthRequest(
-            self.private_key.to_pem(), self.private_key.public_key().to_hex(),
+            self.private_key_hex, self.public_key_hex,
             self.domain, self.permissions)
         auth_request_token = auth_request.token()
 
         is_valid_token = AuthRequest.verify(auth_request_token, self.resolver)
         self.assertTrue(is_valid_token)
+
+        decoded_token = AuthRequest.decode(auth_request_token)
+        self.assertEqual(decoded_token['payload']['issuer']['publicKey'], self.public_key_hex)
 
     def test_auth_request_token_decoding(self):
         decoded_token = AuthRequest.decode(self.sample_encoded_token)
@@ -54,7 +57,7 @@ class AuthRequestTest(unittest.TestCase):
 
     def test_custom_openssl_backend(self):
         auth_request = AuthRequest(
-            self.private_key.to_pem(), self.private_key.public_key().to_hex(),
+            self.private_key_hex, self.public_key_hex,
             self.domain, self.permissions, crypto_backend=openssl_backend)
         auth_request_token = auth_request.token()
 
@@ -64,7 +67,7 @@ class AuthRequestTest(unittest.TestCase):
 
 class AuthResponseTest(unittest.TestCase):
     def setUp(self):
-        self.private_key_hex = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
+        self.private_key_hex = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f01'
         self.public_key_hex = '03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479'
         self.public_keychain = 'xpub661MyMwAqRbcFQVrQr4Q4kPjaP4JjWaf39fBVKjPdK6oGBayE46GAmKzo5UDPQdLSM9DufZiP8eauy56XNuHicBySvZp7J5wsyQVpi2axzZ'
         self.private_keychain = 'xprv9s21ZrQH143K2vRPJpXPhcT12MDpL3rofvjagwKn4yZpPPFpgWn1cy1Wwp3pk78wfHSLcdyZhmEBQsZ29ZwFyTQhhkVVa9QgdTC7hGMB1br'
@@ -82,7 +85,7 @@ class AuthResponseTest(unittest.TestCase):
     def test_auth_response_token_encoding(self):
         challenge = str(uuid.uuid4())
         auth_response = AuthResponse(
-            self.private_key.to_pem(), self.private_key.public_key().to_hex(),
+            self.private_key_hex, self.public_key_hex,
             self.challenge, blockchain_id=self.blockchainid,
             public_keychain=self.public_keychain, chain_path=self.chain_path)
         auth_response_token = auth_response.token()
@@ -93,8 +96,7 @@ class AuthResponseTest(unittest.TestCase):
     def test_anon_auth_response_encoding(self):
         challenge = str(uuid.uuid4())
         auth_response = AuthResponse(
-            self.private_key.to_pem(), self.private_key.public_key().to_hex(),
-            self.challenge)
+            self.private_key_hex, self.public_key_hex, self.challenge)
         auth_response_token = auth_response.token()
 
         is_valid_token = AuthResponse.verify(auth_response_token, self.resolver)

@@ -10,6 +10,7 @@ import time
 import json
 from jwt.utils import merge_dict
 from cryptography.hazmat.backends import default_backend
+from pybitcoin import BitcoinPrivateKey, BitcoinPublicKey
 from .auth_message import AuthMessage
 from .identification import is_public_keychain_in_profile
 from .keychain import do_master_and_child_keys_match
@@ -30,6 +31,9 @@ class AuthResponse(AuthMessage):
             master_public_key should be an extended public key
             chain_path should be a string
         """
+        self.bitcoin_private_key = BitcoinPrivateKey(signing_key, compressed=True)
+        self.bitcoin_public_key = BitcoinPublicKey(verifying_key)
+
         self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
         self.signing_key = signing_key
         self.verifying_key = verifying_key

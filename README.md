@@ -1,4 +1,4 @@
-# Blockchain Auth - Python
+# Blockchain Auth Python
 
 [![CircleCI](https://img.shields.io/circleci/project/blockstack/blockchain-auth-python.svg)](https://pypi.python.org/pypi/blockchain-auth-python/)
 [![PyPI](https://img.shields.io/pypi/v/blockchainauth.svg)](https://pypi.python.org/pypi/blockchainauth/)

@@ -23,6 +23,7 @@ from jwt.utils import (
     raw_to_der_signature
 )
 from jwt import DecodeError
+from pybitcoin import BitcoinPrivateKey
 from .utils import json_encode
 from .keys import load_signing_key, load_verifying_key
 
@@ -37,33 +38,36 @@ class Tokenizer():
     def _get_signer(self, signing_key):
         return signing_key.signer(self.signing_function)
 
-    def encode(self, payload, signing_key):
+    def _create_signing_input(self, payload, header):
+        return b'.'.join(
+            [base64url_encode(json_encode(header)), base64url_encode(json_encode(payload))])
+
+    def encode(self, payload, signing_key=None):
         if not isinstance(payload, Mapping):
             raise TypeError('Expecting a mapping object, as only '
                             'JSON objects can be used as payloads.')
 
-        token_segments = []
+        if not signing_key:
+            # create unsecured token
+            header = {'typ': self.token_type, 'alg': 'none'}
+            return self._create_signing_input(payload, header) + b'.'
 
-        signing_key = load_signing_key(signing_key, self.crypto_backend)
+        signing_key = load_signing_key(BitcoinPrivateKey(signing_key).to_pem(), self.crypto_backend)
 
         # prepare header
         header = {'typ': self.token_type, 'alg': self.signing_algorithm}
-        token_segments.append(base64url_encode(json_encode(header)))
 
-        # prepare payload
-        token_segments.append(base64url_encode(json_encode(payload)))
+        # get token signing_input
+        signing_input = self._create_signing_input(payload, header)
 
         # prepare signature
-        signing_input = b'.'.join(token_segments)
         signer = self._get_signer(signing_key)
         signer.update(signing_input)
         signature = signer.finalize()
         raw_signature = der_to_raw_signature(signature, signing_key.curve)
-        token_segments.append(base64url_encode(raw_signature))
 
         # combine the header, payload, and signature into a token and return it
-        token = b'.'.join(token_segments)
-        return token
+        return signing_input + b'.' + base64url_encode(raw_signature)
 
     def _get_verifier(self, verifying_key, signature):
         return verifying_key.verifier(signature, self.signing_function)

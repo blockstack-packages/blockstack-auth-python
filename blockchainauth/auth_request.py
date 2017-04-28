@@ -75,3 +75,6 @@ class AuthRequest(AuthMessage):
             payload['public_keys'] = [public_key.to_hex()]
             payload['iss'] = make_did_from_address(address)
         return payload
+
+    def redirect_URL(self):
+        return 'blockstack:' + self.token()

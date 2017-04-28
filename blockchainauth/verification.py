@@ -22,7 +22,7 @@ def do_signatures_match_public_keys(token, tokenizer, decoded_token):
             return True
         if len(payload['public_keys']) != 1:
             raise NotImplementedError('Multiple public keys are not supported')
-        public_key = BitcoinPublicKey(payload['public_keys'][0])
+        public_key = BitcoinPublicKey(str(payload['public_keys'][0]))
     except KeyError:
         traceback.print_exc()
         return False
@@ -39,7 +39,9 @@ def do_public_keys_match_issuer(token, tokenizer, decoded_token):
             return not payload.get('iss', None)
         if len(payload['public_keys']) != 1:
             raise NotImplementedError('Multiple public keys are not supported')
-        return payload['public_keys'][0] == get_address_from_did(payload['iss'])
+        address_from_pub_key = BitcoinPublicKey(str(payload['public_keys'][0])).address()
+        address_from_iss = get_address_from_did(payload['iss'])
+        return address_from_pub_key == address_from_iss
     except (KeyError, ValueError):
         traceback.print_exc()
         return False

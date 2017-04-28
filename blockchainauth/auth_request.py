@@ -10,6 +10,7 @@ import time
 from cryptography.hazmat.backends import default_backend
 from pybitcoin import BitcoinPrivateKey
 from .auth_message import AuthMessage
+from .dids import make_did_from_address
 from .tokenizer import Tokenizer
 from .verification import is_expiration_date_valid, is_issuance_date_valid, \
     do_signatures_match_public_keys, do_public_keys_match_issuer
@@ -34,7 +35,7 @@ class AuthRequest(AuthMessage):
             manifest_uri should be a valid URI
             redirect_uri should be a valid URI
             scopes should be a list
-            expires_at should be a time object
+            expires_at should be a float number of seconds since the epoch
         """
         if not manifest_uri:
             manifest_uri = domain_name + '/manifest.json'
@@ -71,6 +72,6 @@ class AuthRequest(AuthMessage):
         if self.private_key:
             public_key = BitcoinPrivateKey(self.private_key).public_key()
             address = public_key.address()
-            payload['public_keys'] = [public_key]
-            payload['iss'] = 'did:btc-addr:' + address
+            payload['public_keys'] = [public_key.to_hex()]
+            payload['iss'] = make_did_from_address(address)
         return payload

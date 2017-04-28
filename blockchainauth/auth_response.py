@@ -7,10 +7,11 @@
 """
 
 import time
-from jwt.utils import merge_dict
+import uuid
 from cryptography.hazmat.backends import default_backend
-from pybitcoin import BitcoinPrivateKey, BitcoinPublicKey
+from pybitcoin import BitcoinPrivateKey
 from .auth_message import AuthMessage
+from .dids import make_did_from_address
 from .tokenizer import Tokenizer
 from .verification import is_expiration_date_valid, is_issuance_date_valid, \
     do_signatures_match_public_keys, do_public_keys_match_issuer, do_public_keys_match_username
@@ -29,43 +30,37 @@ class AuthResponse(AuthMessage):
         do_public_keys_match_username
     ]
 
-    def __init__(self, signing_key, verifying_key, challenge,
-                 blockchain_id=None, public_keychain=None, chain_path=None,
-                 crypto_backend=default_backend()):
-        """ signing_key should be provided in PEM format
-            verifying_key should be provided in compressed hex format
-            blockchainid should be a string
-            master_public_key should be an extended public key
-            chain_path should be a string
+    def __init__(self, private_key, profile=None, username=None,
+                 expires_at=None, crypto_backend=default_backend()):
+        """ private_key should be provided in HEX, WIF or binary format 
+            profile should be a dictionary
+            username should be a string
+            expires_at should be a float number of seconds since the epoch
         """
-        self.bitcoin_private_key = BitcoinPrivateKey(signing_key, compressed=True)
-        self.bitcoin_public_key = BitcoinPublicKey(verifying_key)
+        if not private_key:
+            raise ValueError('Private key is missing')
 
+        if not profile:
+            profile = {}
+
+        if not expires_at:
+            expires_at = time.time() + 30 * 24 * 3600  # next month
+
+        self.private_key = private_key
+        self.public_key = BitcoinPrivateKey(self.private_key).public_key()
+        self.address = self.public_key.address()
+        self.profile = profile
+        self.username = username
+        self.expires_at = expires_at
         self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
-        self.signing_key = signing_key
-        self.verifying_key = verifying_key
-        self.challenge = challenge
-        self.blockchain_id = blockchain_id
-        self.public_keychain = public_keychain
-        self.chain_path = chain_path
 
     def _payload(self):
-        payload = {
-            'issuer': {
-                'publicKey': self.verifying_key
-            },
-            'issuedAt': str(time.time()),
-            'challenge': self.challenge
+        return {
+            'jti': str(uuid.uuid4()),
+            'iat': str(time.time()),
+            'exp': str(self.expires_at),
+            'iss': make_did_from_address(self.address),
+            'public_keys': [self.public_key.to_hex()],
+            'profile': self.profile,
+            'username': self.username
         }
-
-        if self.chain_path and self.blockchain_id and self.public_keychain:
-            payload = merge_dict(payload, {
-                'issuer': {
-                    'publicKey': self.verifying_key,
-                    'blockchainid': self.blockchain_id,
-                    'publicKeychain': self.public_keychain,
-                    'chainPath': self.chain_path
-                }
-            })
-        
-        return payload

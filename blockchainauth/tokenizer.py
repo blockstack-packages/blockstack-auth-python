@@ -4,18 +4,17 @@
     An interface for encoding and decoding JSON Web Tokens (JWTs)
     ~~~~~
     :copyright: (c) 2015 by Halfmoon Labs, Inc.
+    :copyright: (c) 2017 by Stanislav Pankratov
     :license: MIT, see LICENSE for more details.
 """
 
 import json
-import base64
 import binascii
-import traceback
 from collections import Mapping
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import ec, padding
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.exceptions import InvalidSignature
 
 from jwt.utils import (
@@ -28,7 +27,7 @@ from .utils import json_encode
 from .keys import load_signing_key, load_verifying_key
 
 
-class Tokenizer():
+class Tokenizer:
     def __init__(self, crypto_backend=default_backend()):
         self.crypto_backend = crypto_backend
         self.token_type = 'JWT'
@@ -38,7 +37,8 @@ class Tokenizer():
     def _get_signer(self, signing_key):
         return signing_key.signer(self.signing_function)
 
-    def _create_signing_input(self, payload, header):
+    @staticmethod
+    def _create_signing_input(payload, header):
         return b'.'.join(
             [base64url_encode(json_encode(header)), base64url_encode(json_encode(payload))])
 
@@ -111,7 +111,7 @@ class Tokenizer():
         except (TypeError, binascii.Error):
             raise DecodeError('Invalid crypto padding')
 
-        return (header, payload, signature, signing_input)
+        return header, payload, signature, signing_input
 
     def verify(self, token, verifying_key):
         # grab the token parts

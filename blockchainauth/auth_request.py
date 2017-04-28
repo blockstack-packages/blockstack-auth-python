@@ -3,8 +3,10 @@
 """
     ~~~~~
     :copyright: (c) 2015 by Halfmoon Labs, Inc.
+    :copyright: (c) 2017 by Stanislav Pankratov
     :license: MIT, see LICENSE for more details.
 """
+
 import uuid
 import time
 from cryptography.hazmat.backends import default_backend
@@ -76,5 +78,5 @@ class AuthRequest(AuthMessage):
             payload['iss'] = make_did_from_address(address)
         return payload
 
-    def redirect_URL(self):
+    def redirect_url(self):
         return 'blockstack:' + self.token()

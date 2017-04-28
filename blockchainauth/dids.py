@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
     ~~~~~
+    :copyright: (c) 2017 by Stanislav Pankratov
     :license: MIT, see LICENSE for more details.
 """
 

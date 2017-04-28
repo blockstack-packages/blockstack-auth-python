@@ -18,12 +18,11 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     install_requires=[
-        'cryptography==1.2.3',
-        'pybitcoin==0.9.8',
-        'PyJWT==1.4.0',
-        'onename==0.2.0',
+        'cryptography==1.8.1',
+        'pybitcoin==0.9.9',
+        'PyJWT==1.5.0',
         'bitmerchant==0.1.8',
-        'requests==2.9.1',
+        'requests==2.13.0',
         'utilitybelt==0.2.6'
     ],
     classifiers=[

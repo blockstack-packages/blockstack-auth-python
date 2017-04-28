@@ -7,20 +7,27 @@
 """
 
 import time
-import json
 from jwt.utils import merge_dict
 from cryptography.hazmat.backends import default_backend
 from pybitcoin import BitcoinPrivateKey, BitcoinPublicKey
 from .auth_message import AuthMessage
-from .identification import is_public_keychain_in_profile
-from .keychain import do_master_and_child_keys_match
 from .tokenizer import Tokenizer
+from .verification import is_expiration_date_valid, is_issuance_date_valid, \
+    do_signatures_match_public_keys, do_public_keys_match_issuer, do_public_keys_match_username
 
 
 class AuthResponse(AuthMessage):
     """ Interface for creating signed auth response tokens, as well as decoding
         and verifying them.
     """
+
+    verify_methods = [
+        is_expiration_date_valid,
+        is_issuance_date_valid,
+        do_signatures_match_public_keys,
+        do_public_keys_match_issuer,
+        do_public_keys_match_username
+    ]
 
     def __init__(self, signing_key, verifying_key, challenge,
                  blockchain_id=None, public_keychain=None, chain_path=None,
@@ -62,43 +69,3 @@ class AuthResponse(AuthMessage):
             })
         
         return payload
-
-    @classmethod
-    def has_valid_issuer(cls, token, resolver):
-        decoded_token = cls.decode(token)
-        payload = decoded_token['payload']
-        try:
-            issuer = payload['issuer']
-        except KeyError:
-            return False
-
-        anon_issuer_keys = set(['publicKey'])
-        identified_issuer_keys = anon_issuer_keys.union(
-            set(['blockchainid', 'publicKeychain', 'chainPath']))
-
-        # if all three identifying values are here, proceed
-        if set(issuer.keys()) == identified_issuer_keys:
-            child_public_key = issuer['publicKey']
-            blockchain_id = issuer['blockchainid']
-            public_keychain = issuer['publicKeychain']
-            chain_path = issuer['chainPath']
-        # if all three identifying values are missing, the anon issuer is valid
-        elif set(issuer.keys()) == anon_issuer_keys:
-            return True
-        # if 1-2 of the identifying values are present, the issuer is invalid
-        else:
-            return False
-
-        master_and_child_keys_match = do_master_and_child_keys_match(
-            public_keychain, child_public_key, chain_path)
-
-        # if the master and child keys don't match, the issuer is invalid
-        if not master_and_child_keys_match:
-            return False
-
-        public_keychain_in_profile = is_public_keychain_in_profile(
-            blockchain_id, public_keychain, resolver)
-
-        # consider the issuer valid only if the public keychain matches a
-        # blockchain ID profile AND the included master and child keys match
-        return public_keychain_in_profile and master_and_child_keys_match

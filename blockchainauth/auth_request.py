@@ -10,14 +10,22 @@ import time
 from cryptography.hazmat.backends import default_backend
 from pybitcoin import BitcoinPrivateKey
 from .auth_message import AuthMessage
-from .identification import domain_and_public_key_match
 from .tokenizer import Tokenizer
+from .verification import is_expiration_date_valid, is_issuance_date_valid, \
+    do_signatures_match_public_keys, do_public_keys_match_issuer
 
 
 class AuthRequest(AuthMessage):
     """ Interface for creating signed auth request tokens, as well as decoding
         and verifying them.
     """
+
+    verify_methods = [
+        is_expiration_date_valid,
+        is_issuance_date_valid,
+        do_signatures_match_public_keys,
+        do_public_keys_match_issuer
+    ]
 
     def __init__(self, private_key, domain_name, manifest_uri=None, redirect_uri=None,
                  scopes=None, expires_at=None, crypto_backend=default_backend()):
@@ -64,17 +72,5 @@ class AuthRequest(AuthMessage):
             public_key = BitcoinPrivateKey(self.private_key).public_key()
             address = public_key.address()
             payload['public_keys'] = [public_key]
-            payload['iss'] = address
+            payload['iss'] = 'did:btc-addr:' + address
         return payload
-
-    @classmethod
-    def has_valid_issuer(cls, token, resolver):
-        decoded_token = cls.decode(token)
-        payload = decoded_token['payload']
-        try:
-            domain = payload['issuer']['domain']
-            public_key = payload['issuer']['publicKey']
-        except KeyError:
-            return False
-        return domain_and_public_key_match(domain, public_key, resolver)
-

@@ -5,7 +5,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .tokenizer import Tokenizer
-from .auth_request import AuthRequest
-from .auth_response import AuthResponse
-from .keys import load_signing_key, load_verifying_key
+from blockchainauth.tokenizer import Tokenizer
+from blockchainauth.auth_request import AuthRequest
+from blockchainauth.auth_response import AuthResponse
+from blockchainauth.keys import load_signing_key, load_verifying_key

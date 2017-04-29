@@ -10,7 +10,7 @@
 import json
 import traceback
 from jwt import DecodeError
-from .tokenizer import Tokenizer
+from blockchainauth.tokenizer import Tokenizer
 
 
 class AuthMessage:

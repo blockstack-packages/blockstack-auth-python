@@ -23,8 +23,8 @@ from jwt.utils import (
 )
 from jwt import DecodeError
 from pybitcoin import BitcoinPrivateKey
-from .utils import json_encode
-from .keys import load_signing_key, load_verifying_key
+from blockchainauth.utils import json_encode
+from blockchainauth.keys import load_signing_key, load_verifying_key
 
 
 class Tokenizer:
@@ -137,9 +137,9 @@ class Tokenizer:
     def decode(cls, token):
         header, payload, raw_signature, signing_input = cls._unpack(token)
         token = { 
-            "header": header,
-            "payload": payload,
-            "signature": base64url_encode(raw_signature)
+            u"header": header,
+            u"payload": payload,
+            u"signature": unicode(base64url_encode(raw_signature))
         }
         return token
 

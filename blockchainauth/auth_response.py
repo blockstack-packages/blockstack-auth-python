@@ -11,10 +11,10 @@ import time
 import uuid
 from cryptography.hazmat.backends import default_backend
 from pybitcoin import BitcoinPrivateKey
-from .auth_message import AuthMessage
-from .dids import make_did_from_address
-from .tokenizer import Tokenizer
-from .verification import is_expiration_date_valid, is_issuance_date_valid, \
+from blockchainauth.auth_message import AuthMessage
+from blockchainauth.dids import make_did_from_address
+from blockchainauth.tokenizer import Tokenizer
+from blockchainauth.verification import is_expiration_date_valid, is_issuance_date_valid, \
     do_signatures_match_public_keys, do_public_keys_match_issuer, do_public_keys_match_username
 
 

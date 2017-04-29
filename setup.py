@@ -25,6 +25,10 @@ setup(
         'requests==2.13.0',
         'utilitybelt==0.2.6'
     ],
+    tests_require=[
+        'requests-mock==1.3.0'
+    ],
+    test_suite='tests',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

@@ -10,7 +10,7 @@ import requests
 import time
 import traceback
 from pybitcoin import BitcoinPublicKey
-from .dids import get_address_from_did
+from blockchainauth.dids import get_address_from_did
 
 NAME_LOOKUP_URL = 'https://explorer-api.appartisan.com/get_name_blockchain_record/'
 

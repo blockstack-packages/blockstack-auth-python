@@ -142,7 +142,7 @@ True
                 }
             ]
         },
-        "public_keys": [027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69],
+        "public_keys": ["027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69"],
         "username": "ryan.id"
     },
     "signature": "CoOAxoYEOAYd0ajaa31AWxFzvBhSxzdEUa-tm2LDlkICj_sNIgF-jHJY-6WPGfk4OmLLZ-8Uos5HdWes1PviRQ"

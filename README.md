@@ -20,19 +20,19 @@ $ pip install blockchainauth
 
 ```json
 {
-    'header': {'typ': 'JWT', 'alg': 'ES256K'},
-    'payload': {
-        'domain_name': 'http://localhost:5000',
-        'exp': 1493412486,
-        'iat': 1493408886,
-        'iss': 'did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U',
-        'jti': '75719c8a-3679-45b7-9551-21b6dfc28444',
-        'manifest_uri': 'http://localhost:5000/manifest.json',
-        'public_keys': [027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69],
-        'redirect_uri': 'http://localhost:5000',
-        'scopes': []
+    "header": {"typ": "JWT", "alg": "ES256K"},
+    "payload": {
+        "domain_name": "http://localhost:5000",
+        "exp": 1493412486,
+        "iat": 1493408886,
+        "iss": "did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U",
+        "jti": "75719c8a-3679-45b7-9551-21b6dfc28444",
+        "manifest_uri": "http://localhost:5000/manifest.json",
+        "public_keys": [027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69],
+        "redirect_uri": "http://localhost:5000",
+        "scopes": []
     },
-    'signature': 'HBwhcgPj7hrKg_IOGyaMJ9L-U_kwE5EweK8H54E2fuNONeWElfJg-h10LJvbwrvf_3TcgzQRbqdxGSmro8Ey6A'
+    "signature": "HBwhcgPj7hrKg_IOGyaMJ9L-U_kwE5EweK8H54E2fuNONeWElfJg-h10LJvbwrvf_3TcgzQRbqdxGSmro8Ey6A"
 }
 ```
 
@@ -40,8 +40,8 @@ $ pip install blockchainauth
 
 ```python
 >>> from blockchainauth import AuthRequest
->>> private_key = 'a5c61c6ca7b3e7e55edee68566aeab22e4da26baa285c7bd10e8d2218aa3b22901'
->>> auth_request = AuthRequest(private_key, 'localhost:5000')
+>>> private_key = "a5c61c6ca7b3e7e55edee68566aeab22e4da26baa285c7bd10e8d2218aa3b22901"
+>>> auth_request = AuthRequest(private_key, "localhost:5000")
 >>> auth_request_token = auth_request.token()
 >>> print auth_request_token
 eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOltdLCJyZWRpcmVjdF91cmkiOiJsb2NhbGhvc3Q6NTAwMCIsImp0aSI6IjI3MWYxNGI5LTc3YmEtNDZiMy1iNmRjLTI2YzZjNjAyYWY5YiIsImV4cCI6IjE0OTM1NTI0MDQuMDYiLCJwdWJsaWNfa2V5cyI6WyIwMjdkMjhmOTk1MWNlNDY1Mzg5NTFlMzY5N2M2MjU4OGE4N2YxZjFmMjk1ZGU0YTE0ZmRkNGM3ODBmYzUyY2ZlNjkiXSwiaXNzIjoiZGlkOmJ0Yy1hZGRyOjFOWk54aG94b2Jxd3NOdlRiMTZwZGVpcXZGdmNlM1lnOFUiLCJpYXQiOiIxNDkzNTQ4ODA3Ljk2IiwibWFuaWZlc3RfdXJpIjoibG9jYWxob3N0OjUwMDAvbWFuaWZlc3QuanNvbiIsImRvbWFpbl9uYW1lIjoibG9jYWxob3N0OjUwMDAifQ.EotiYm1yGOJt3qqUWKzB0FQqkk8onxEB_rBgIllIUZ5l8gujREPPX1osWy8Wm6q8p0q81k41w1K8YyAAIgWucg
@@ -50,8 +50,8 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOltdLCJyZWRpcmVjdF91cmkiOiJsb2N
 ### Decoding Requests
 
 ```python
->>> AuthRequest.decode(auth_request_token)['payload']
-{u'scopes': [], u'iss': u'did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U', u'domain_name': u'localhost:5000', u'redirect_uri': u'localhost:5000', u'jti': u'271f14b9-77ba-46b3-b6dc-26c6c602af9b', u'exp': u'1493552404.06', u'iat': u'1493548807.96', u'public_keys': [u'027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69'], u'manifest_uri': u'localhost:5000/manifest.json'}
+>>> AuthRequest.decode(auth_request_token)["payload"]
+{u"scopes": [], u"iss": u"did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U", u"domain_name": u"localhost:5000", u"redirect_uri": u"localhost:5000", u"jti": u"271f14b9-77ba-46b3-b6dc-26c6c602af9b", u"exp": u"1493552404.06", u"iat": u"1493548807.96", u"public_keys": [u"027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69"], u"manifest_uri": u"localhost:5000/manifest.json"}
 ```
 
 ### Verifying Requests
@@ -67,13 +67,13 @@ True
 
 ```json
 {
-    'header': {'typ': 'JWT', 'alg': 'ES256K'},
-    'payload': {
-        'exp': 1496141298.31,
-        'iat': 1493549308.76,
-        'iss': 'did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U',
-        'jti': 'b483adf1-1c3d-435c-be5e-bb88000bb2b4',
-        'profile': {
+    "header": {"typ": "JWT", "alg": "ES256K"},
+    "payload": {
+        "exp": 1496141298.31,
+        "iat": 1493549308.76,
+        "iss": "did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U",
+        "jti": "b483adf1-1c3d-435c-be5e-bb88000bb2b4",
+        "profile": {
             "@type": "Person",
             "account": [
                 {
@@ -142,10 +142,10 @@ True
                 }
             ]
         },
-        'public_keys': [027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69],
-        'username': 'ryan.id'
+        "public_keys": [027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69],
+        "username": "ryan.id"
     },
-    'signature': 'CoOAxoYEOAYd0ajaa31AWxFzvBhSxzdEUa-tm2LDlkICj_sNIgF-jHJY-6WPGfk4OmLLZ-8Uos5HdWes1PviRQ'
+    "signature": "CoOAxoYEOAYd0ajaa31AWxFzvBhSxzdEUa-tm2LDlkICj_sNIgF-jHJY-6WPGfk4OmLLZ-8Uos5HdWes1PviRQ"
 }
 ```
 
@@ -154,8 +154,8 @@ True
 ```python
 >>> from blockchainauth import AuthResponse
 >>> RYAN_PROFILE = {...}
->>> private_key = 'a5c61c6ca7b3e7e55edee68566aeab22e4da26baa285c7bd10e8d2218aa3b22901'
->>> username = 'ryan.id'
+>>> private_key = "a5c61c6ca7b3e7e55edee68566aeab22e4da26baa285c7bd10e8d2218aa3b22901"
+>>> username = "ryan.id"
 >>> from blockchainauth import AuthResponse
 >>> auth_response = AuthResponse(private_key, RYAN_PROFILE, username)
 >>> auth_response_token = auth_response.token()
@@ -166,8 +166,8 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9maWxlIjp7IndlYnNpdGUiOlt7InVybCI6Imh
 ### Decoding Responses
 
 ```python
->>> AuthResponse.decode(auth_response_token)['payload']
-{u'profile': {u'website': [{u'url': u'http://shea.io', u'@type': u'WebSite'}], u'account': [{u'identifier': u'1LFS37yRSibwbf8CnXeCn5t1GKeTEZMmu9', u'role': u'payment', u'@type': u'Account', u'service': u'bitcoin'}, {u'contentUrl': u'https://s3.amazonaws.com/pk9/ryan', u'identifier': u'1E4329E6634C75730D4D88C0638F2769D55B9837', u'@type': u'Account', u'service': u'pgp'}, {u'identifier': u'f2250123a6af138c86b30f3233b338961dc8fbc3', u'proofUrl': u'https://www.facebook.com/msrobot0/posts/10153644446452759', u'proofType': u'http', u'service': u'openbazaar', u'@type': u'Account'}, {u'identifier': u'ryaneshea', u'proofUrl': u'https://twitter.com/ryaneshea/status/765575388735082496', u'proofType': u'http', u'service': u'twitter', u'@type': u'Account'}, {u'identifier': u'shea256', u'proofUrl': u'https://gist.github.com/shea256/a6dc1f3182f28bb2285feaef07a14340', u'proofType': u'http', u'service': u'github', u'@type': u'Account'}, {u'identifier': u'ryaneshea', u'proofUrl': u'https://www.facebook.com/ryaneshea/posts/10154182997407713', u'proofType': u'http', u'service': u'facebook', u'@type': u'Account'}], u'name': u'Ryan Shea', u'image': [{u'contentUrl': u'https://s3.amazonaws.com/kd4/ryan', u'@type': u'ImageObject', u'name': u'avatar'}, {u'contentUrl': u'https://s3.amazonaws.com/dx3/ryan', u'@type': u'ImageObject', u'name': u'cover'}], u'address': {u'addressLocality': u'New York', u'@type': u'PostalAddress'}, u'@type': u'Person', u'description': u'Co-founder of Blockstack Inc.'}, u'username': u'ryan.id', u'iss': u'did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U', u'jti': u'b483adf1-1c3d-435c-be5e-bb88000bb2b4', u'exp': u'1496141298.31', u'iat': u'1493549308.76', u'public_keys': [u'027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69']}
+>>> AuthResponse.decode(auth_response_token)["payload"]
+{u"profile": {u"website": [{u"url": u"http://shea.io", u"@type": u"WebSite"}], u"account": [{u"identifier": u"1LFS37yRSibwbf8CnXeCn5t1GKeTEZMmu9", u"role": u"payment", u"@type": u"Account", u"service": u"bitcoin"}, {u"contentUrl": u"https://s3.amazonaws.com/pk9/ryan", u"identifier": u"1E4329E6634C75730D4D88C0638F2769D55B9837", u"@type": u"Account", u"service": u"pgp"}, {u"identifier": u"f2250123a6af138c86b30f3233b338961dc8fbc3", u"proofUrl": u"https://www.facebook.com/msrobot0/posts/10153644446452759", u"proofType": u"http", u"service": u"openbazaar", u"@type": u"Account"}, {u"identifier": u"ryaneshea", u"proofUrl": u"https://twitter.com/ryaneshea/status/765575388735082496", u"proofType": u"http", u"service": u"twitter", u"@type": u"Account"}, {u"identifier": u"shea256", u"proofUrl": u"https://gist.github.com/shea256/a6dc1f3182f28bb2285feaef07a14340", u"proofType": u"http", u"service": u"github", u"@type": u"Account"}, {u"identifier": u"ryaneshea", u"proofUrl": u"https://www.facebook.com/ryaneshea/posts/10154182997407713", u"proofType": u"http", u"service": u"facebook", u"@type": u"Account"}], u"name": u"Ryan Shea", u"image": [{u"contentUrl": u"https://s3.amazonaws.com/kd4/ryan", u"@type": u"ImageObject", u"name": u"avatar"}, {u"contentUrl": u"https://s3.amazonaws.com/dx3/ryan", u"@type": u"ImageObject", u"name": u"cover"}], u"address": {u"addressLocality": u"New York", u"@type": u"PostalAddress"}, u"@type": u"Person", u"description": u"Co-founder of Blockstack Inc."}, u"username": u"ryan.id", u"iss": u"did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U", u"jti": u"b483adf1-1c3d-435c-be5e-bb88000bb2b4", u"exp": u"1496141298.31", u"iat": u"1493549308.76", u"public_keys": [u"027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69"]}
 ```
 
 ### Verifying Responses

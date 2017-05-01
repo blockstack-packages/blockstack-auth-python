@@ -28,7 +28,7 @@ $ pip install blockchainauth
         "iss": "did:btc-addr:1NZNxhoxobqwsNvTb16pdeiqvFvce3Yg8U",
         "jti": "75719c8a-3679-45b7-9551-21b6dfc28444",
         "manifest_uri": "http://localhost:5000/manifest.json",
-        "public_keys": [027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69],
+        "public_keys": ["027d28f9951ce46538951e3697c62588a87f1f1f295de4a14fdd4c780fc52cfe69"],
         "redirect_uri": "http://localhost:5000",
         "scopes": []
     },

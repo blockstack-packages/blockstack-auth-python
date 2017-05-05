@@ -21,7 +21,9 @@ class AuthMessage:
         raise NotImplementedError('')
 
     def token(self):
-        return self.tokenizer.encode(self._payload(), self.private_key)
+        if not hasattr(self, '_token'):
+            self._token = self.tokenizer.encode(self._payload(), self.private_key)
+        return self._token
 
     def json(self):
         return json.loads(self.decode(self.token(), self.tokenizer))

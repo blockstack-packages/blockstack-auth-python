@@ -32,11 +32,11 @@ class AuthResponse(AuthMessage):
     ]
 
     def __init__(self, private_key, profile=None, username=None,
-                 expires_at=None, crypto_backend=default_backend()):
+                 expires_after=None, crypto_backend=default_backend()):
         """ private_key should be provided in HEX, WIF or binary format 
             profile should be a dictionary
             username should be a string
-            expires_at should be a float number of seconds since the epoch
+            expires_after should be a float number of seconds
         """
         if not private_key:
             raise ValueError('Private key is missing')
@@ -44,22 +44,23 @@ class AuthResponse(AuthMessage):
         if not profile:
             profile = {}
 
-        if not expires_at:
-            expires_at = time.time() + 30 * 24 * 3600  # next month
+        if not expires_after:
+            expires_after = 30 * 24 * 3600  # next month
 
         self.private_key = private_key
         self.public_key = BitcoinPrivateKey(self.private_key).public_key()
         self.address = self.public_key.address()
         self.profile = profile
         self.username = username
-        self.expires_at = expires_at
+        self.expires_after = expires_after
         self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
 
     def _payload(self):
+        now = time.time()
         return {
             'jti': str(uuid.uuid4()),
-            'iat': str(time.time()),
-            'exp': str(self.expires_at),
+            'iat': str(now),
+            'exp': str(now + self.expires_after),
             'iss': make_did_from_address(self.address),
             'public_keys': [self.public_key.to_hex()],
             'profile': self.profile,

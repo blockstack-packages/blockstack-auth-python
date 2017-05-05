@@ -31,13 +31,13 @@ class AuthRequest(AuthMessage):
     ]
 
     def __init__(self, private_key, domain_name, manifest_uri=None, redirect_uri=None,
-                 scopes=None, expires_at=None, crypto_backend=default_backend()):
+                 scopes=None, expires_after=None, crypto_backend=default_backend()):
         """ private_key should be provided in HEX, WIF or binary format 
             domain_name should be a valid domain
             manifest_uri should be a valid URI
             redirect_uri should be a valid URI
             scopes should be a list
-            expires_at should be a float number of seconds since the epoch
+            expires_after should be a float number of seconds
         """
         if not manifest_uri:
             manifest_uri = domain_name + '/manifest.json'
@@ -48,22 +48,23 @@ class AuthRequest(AuthMessage):
         if not scopes:
             scopes = []
 
-        if not expires_at:
-            expires_at = time.time() + 3600  # next hour
+        if not expires_after:
+            expires_after = 3600  # next hour
 
         self.private_key = private_key
         self.domain_name = domain_name
         self.manifest_uri = manifest_uri
         self.redirect_uri = redirect_uri
         self.scopes = scopes
-        self.expires_at = expires_at
+        self.expires_after = expires_after
         self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
 
     def _payload(self):
+        now = time.time()
         payload = {
             'jti': str(uuid.uuid4()),
-            'iat': str(time.time()),
-            'exp': str(self.expires_at),
+            'iat': str(now),
+            'exp': str(now + self.expires_after),
             'iss': None,
             'public_keys': [],
             'domain_name': self.domain_name,

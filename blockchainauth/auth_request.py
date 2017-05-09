@@ -3,18 +3,19 @@
 """
     ~~~~~
     :copyright: (c) 2015 by Halfmoon Labs, Inc.
+    :copyright: (c) 2017 by Stanislav Pankratov
     :license: MIT, see LICENSE for more details.
 """
 
-import json
 import uuid
 import time
 from cryptography.hazmat.backends import default_backend
-from pybitcoin import BitcoinPrivateKey, BitcoinPublicKey
-from .permissions import PERMISSION_TYPES, validate_permissions
-from .auth_message import AuthMessage
-from .identification import domain_and_public_key_match
-from .tokenizer import Tokenizer
+from pybitcoin import BitcoinPrivateKey
+from blockchainauth.auth_message import AuthMessage
+from blockchainauth.dids import make_did_from_address
+from blockchainauth.tokenizer import Tokenizer
+from blockchainauth.verification import is_expiration_date_valid, is_issuance_date_valid, \
+    do_signatures_match_public_keys, do_public_keys_match_issuer
 
 
 class AuthRequest(AuthMessage):
@@ -22,43 +23,61 @@ class AuthRequest(AuthMessage):
         and verifying them.
     """
 
-    def __init__(self, signing_key, verifying_key, issuing_domain,
-                 permissions=[], crypto_backend=default_backend()):
-        """ signing_key should be provided in PEM format
-            verifying_key should be provided in compressed hex format
-            issuing_domain should be a valid domain
-            permissions should be a list
+    verify_methods = [
+        is_expiration_date_valid,
+        is_issuance_date_valid,
+        do_signatures_match_public_keys,
+        do_public_keys_match_issuer
+    ]
+
+    def __init__(self, private_key, domain_name, manifest_uri=None, redirect_uri=None,
+                 scopes=None, expires_after=None, crypto_backend=default_backend()):
+        """ private_key should be provided in HEX, WIF or binary format 
+            domain_name should be a valid domain
+            manifest_uri should be a valid URI
+            redirect_uri should be a valid URI
+            scopes should be a list
+            expires_after should be a float number of seconds
         """
-        validate_permissions(permissions)
+        if not manifest_uri:
+            manifest_uri = domain_name + '/manifest.json'
 
-        self.bitcoin_private_key = BitcoinPrivateKey(signing_key, compressed=True)
-        self.bitcoin_public_key = BitcoinPublicKey(verifying_key)
+        if not redirect_uri:
+            redirect_uri = domain_name
 
+        if not scopes:
+            scopes = []
+
+        if not expires_after:
+            expires_after = 3600  # next hour
+
+        self.private_key = private_key
+        self.domain_name = domain_name
+        self.manifest_uri = manifest_uri
+        self.redirect_uri = redirect_uri
+        self.scopes = scopes
+        self.expires_after = expires_after
         self.tokenizer = Tokenizer(crypto_backend=crypto_backend)
-        self.issuing_domain = issuing_domain
-        self.permissions = permissions
-        self.signing_key = signing_key
-        self.verifying_key = verifying_key
 
     def _payload(self):
-        return {
-            'issuer': {
-                'domain': self.issuing_domain,
-                'publicKey': self.verifying_key
-            },
-            'issuedAt': str(time.time()),
-            'challenge': str(uuid.uuid4()),
-            'permissions': self.permissions
+        now = time.time()
+        payload = {
+            'jti': str(uuid.uuid4()),
+            'iat': str(now),
+            'exp': str(now + self.expires_after),
+            'iss': None,
+            'public_keys': [],
+            'domain_name': self.domain_name,
+            'manifest_uri': self.manifest_uri,
+            'redirect_uri': self.redirect_uri,
+            'scopes': self.scopes
         }
+        if self.private_key:
+            public_key = BitcoinPrivateKey(self.private_key).public_key()
+            address = public_key.address()
+            payload['public_keys'] = [public_key.to_hex()]
+            payload['iss'] = make_did_from_address(address)
+        return payload
 
-    @classmethod
-    def has_valid_issuer(cls, token, resolver):
-        decoded_token = cls.decode(token)
-        payload = decoded_token['payload']
-        try:
-            domain = payload['issuer']['domain']
-            public_key = payload['issuer']['publicKey']
-        except KeyError:
-            return False
-        return domain_and_public_key_match(domain, public_key, resolver)
-
+    def redirect_url(self):
+        return 'blockstack:' + self.token()

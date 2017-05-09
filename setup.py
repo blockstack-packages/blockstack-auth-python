@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='blockchainauth',
-    version='0.2.1',
+    version='0.3.1',
     url='https://github.com/blockstack/blockchain-auth-python',
     license='MIT',
     author='Blockstack Developers',
@@ -18,14 +18,17 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     install_requires=[
-        'cryptography==1.2.3',
-        'pybitcoin==0.9.8',
-        'PyJWT==1.4.0',
-        'onename==0.2.0',
+        'cryptography==1.8.1',
+        'pybitcoin==0.9.9',
+        'PyJWT==1.5.0',
         'bitmerchant==0.1.8',
-        'requests==2.9.1',
+        'requests==2.13.0',
         'utilitybelt==0.2.6'
     ],
+    tests_require=[
+        'requests-mock==1.3.0'
+    ],
+    test_suite='tests',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

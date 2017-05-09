@@ -4,18 +4,17 @@
     An interface for encoding and decoding JSON Web Tokens (JWTs)
     ~~~~~
     :copyright: (c) 2015 by Halfmoon Labs, Inc.
+    :copyright: (c) 2017 by Stanislav Pankratov
     :license: MIT, see LICENSE for more details.
 """
 
 import json
-import base64
 import binascii
-import traceback
 from collections import Mapping
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import ec, padding
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.exceptions import InvalidSignature
 
 from jwt.utils import (
@@ -23,11 +22,12 @@ from jwt.utils import (
     raw_to_der_signature
 )
 from jwt import DecodeError
-from .utils import json_encode
-from .keys import load_signing_key, load_verifying_key
+from pybitcoin import BitcoinPrivateKey
+from blockchainauth.utils import json_encode
+from blockchainauth.keys import load_signing_key, load_verifying_key
 
 
-class Tokenizer():
+class Tokenizer:
     def __init__(self, crypto_backend=default_backend()):
         self.crypto_backend = crypto_backend
         self.token_type = 'JWT'
@@ -37,33 +37,37 @@ class Tokenizer():
     def _get_signer(self, signing_key):
         return signing_key.signer(self.signing_function)
 
-    def encode(self, payload, signing_key):
+    @staticmethod
+    def _create_signing_input(payload, header):
+        return b'.'.join(
+            [base64url_encode(json_encode(header)), base64url_encode(json_encode(payload))])
+
+    def encode(self, payload, signing_key=None):
         if not isinstance(payload, Mapping):
             raise TypeError('Expecting a mapping object, as only '
                             'JSON objects can be used as payloads.')
 
-        token_segments = []
+        if not signing_key:
+            # create unsecured token
+            header = {'typ': self.token_type, 'alg': 'none'}
+            return self._create_signing_input(payload, header) + b'.'
 
-        signing_key = load_signing_key(signing_key, self.crypto_backend)
+        signing_key = load_signing_key(BitcoinPrivateKey(signing_key).to_pem(), self.crypto_backend)
 
         # prepare header
         header = {'typ': self.token_type, 'alg': self.signing_algorithm}
-        token_segments.append(base64url_encode(json_encode(header)))
 
-        # prepare payload
-        token_segments.append(base64url_encode(json_encode(payload)))
+        # get token signing_input
+        signing_input = self._create_signing_input(payload, header)
 
         # prepare signature
-        signing_input = b'.'.join(token_segments)
         signer = self._get_signer(signing_key)
         signer.update(signing_input)
         signature = signer.finalize()
         raw_signature = der_to_raw_signature(signature, signing_key.curve)
-        token_segments.append(base64url_encode(raw_signature))
 
         # combine the header, payload, and signature into a token and return it
-        token = b'.'.join(token_segments)
-        return token
+        return signing_input + b'.' + base64url_encode(raw_signature)
 
     def _get_verifier(self, verifying_key, signature):
         return verifying_key.verifier(signature, self.signing_function)
@@ -107,7 +111,7 @@ class Tokenizer():
         except (TypeError, binascii.Error):
             raise DecodeError('Invalid crypto padding')
 
-        return (header, payload, signature, signing_input)
+        return header, payload, signature, signing_input
 
     def verify(self, token, verifying_key):
         # grab the token parts
@@ -133,9 +137,9 @@ class Tokenizer():
     def decode(cls, token):
         header, payload, raw_signature, signing_input = cls._unpack(token)
         token = { 
-            "header": header,
-            "payload": payload,
-            "signature": base64url_encode(raw_signature)
+            u"header": header,
+            u"payload": payload,
+            u"signature": unicode(base64url_encode(raw_signature))
         }
         return token
 

@@ -6,8 +6,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import traceback
-
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.backends.openssl.backend import Backend
 from cryptography.hazmat.backends.multibackend import MultiBackend
@@ -45,7 +43,7 @@ def load_signing_key(signing_key, crypto_backend=default_backend()):
             try:
                 return load_pem_private_key(
                     signing_key, password=None, backend=crypto_backend)
-            except Exception as e:
+            except Exception:
                 raise ValueError(
                     'Signing key must be a valid private key PEM or DER.')
     else:
@@ -68,7 +66,7 @@ def load_verifying_key(verifying_key, crypto_backend=default_backend()):
             try:
                 return load_pem_public_key(
                     verifying_key, backend=crypto_backend)
-            except Exception as e:
+            except Exception:
                 raise ValueError('Invalid verifying key format')
     else:
         raise ValueError('Invalid verification key type')
